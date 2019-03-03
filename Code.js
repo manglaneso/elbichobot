@@ -59,6 +59,8 @@ function doPost(e) {
     var inline_query = update.inline_query;
     var query = inline_query.query;
     var queryInt = parseInt(inline_query.query);
+    
+    var calculatedResults = [];
 
     if(!isNaN(queryInt) && queryInt != 0) {
       var result = {};
