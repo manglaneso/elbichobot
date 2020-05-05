@@ -1,15 +1,21 @@
 var calculatorUrlBase = 'http://api.mathjs.org/v4/';
 
+/**
+ * Handler for the /CALC command. Computes mathematical expressions.
+ *
+ * @param {object} msg Telegram API message resource object
+ *
+ */
 function mathjs(msg) {
   try {
-    var params = msg.text.split(' ');  
-    var expression = params[1];
+    let params = msg['text'].split(' ');  
+    let expression = params[1];
     
-    var data = UrlFetchApp.fetch(calculatorUrlBase + '?expr=' + encodeURIComponent(expression));
-    replyToMessage(msg, data.getContentText(), msg.message_id);
+    let data = UrlFetchApp.fetch(calculatorUrlBase + '?expr=' + encodeURIComponent(expression));
+    sendMessage(msg, data.getContentText(), replyTo=true);
   } catch(e) {
     console.error('Error en convertCurrency');
     console.error(e);
-    replyToMessage(msg, 'No se ha podido realizar la operación.', msg.message_id);
+    sendMessage(msg, 'No se ha podido realizar la operación.', replyTo=true);
   }  
 }

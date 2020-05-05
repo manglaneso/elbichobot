@@ -1,0 +1,6 @@
+Las próximas fiestas son:
+---------- 
+
+<? for(let i in data) { ?>
+El día <b><?= data[i].getStartTime().toLocaleDateString('es-ES') ?></b> es la fiesta de <b><?= data[i].getTitle() ?></b> 
+<? } ?>

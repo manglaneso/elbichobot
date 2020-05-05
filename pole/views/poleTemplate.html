@@ -1,0 +1,21 @@
+🏁🔝<b>RANKING GLOBAL</b>🔝🏁
+------------
+<? if(data['globalRank'].length >= 1 && data['globalRank'][0][0] != '') { ?>
+<? for(let elem in data['globalRank']) { ?>
+<?= data['globalRank'][elem][0] ?>: <?= data['globalRank'][elem][1] ?> 
+<? } ?>
+<? } ?>
+
+<? for(let i in priority) { ?>
+🏁<b><?=priority[i].toUpperCase()?>RANK</b>🏁
+-----------
+<? if(data[priority[i]]['sortedValues'].length >= 1 && data[priority[i]]['sortedValues'][0][0] != '') { ?>
+<? for(let j in data[priority[i]]['sortedValues'])  { ?>
+<?= data[priority[i]]['sortedValues'][j][1] ?>: <?= data[priority[i]]['sortedValues'][j][2] ?> 
+<? } ?>
+    
+<? } else { ?>
+No se ha registrado nada
+
+<? } ?>
+<? } ?>

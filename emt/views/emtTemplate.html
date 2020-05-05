@@ -1,0 +1,11 @@
+<?for(var i = 0 in data) {?>
+<b>Línea <?=data[i]['line']?> - Destino <?=data[i]['destination']?></b>
+<?if(data[i]['estimateArrive'] != 999999) {?>
+  Tiempo de espera: <?=precise(data[i]['estimateArrive']/60)?> Min
+<?} else {?>
+  Tiempo de espera: +45 Min
+<?}?>
+Distancia a la parada: <?=data[i]['DistanceBus']?> m
+________
+
+<?}?>
