@@ -9,23 +9,23 @@ let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
  * @param {object} request HTTP Request object received.
  */
 function doPost(request) {
-    
   if(checkTelegramAuth(request)) {
-     let update = JSON.parse(request.postData.contents);
+     let update = JSON.parse(request['postData']['contents']);
   
     // Make sure this is update is a type message
     if (update.hasOwnProperty('message')) {
-      let msg = update.message;
-      
+      let msg = update['message'];
+      // console.info(JSON.stringify(msg));
       console.info(String(msg['chat']['id']));
       
-      // Check if there is a better way to do this
-      if(msg['text'].indexOf(scriptProperties.getProperty('BotUsername')) > -1) {
-        msg['text'] = replaceString(scriptProperties.getProperty('BotUsername'), '', msg['text']);
-      }
-      
       // Process text messages and images with captions
-      if(msg['text'] || msg['caption']) {  
+      if(msg['text']) {  
+        
+        // Check if there is a better way to do this
+        if(msg['text'].indexOf(scriptProperties.getProperty('BotUsername')) > -1) {
+          msg['text'] = replaceString(scriptProperties.getProperty('BotUsername'), '', msg['text']);
+        }
+        
         // Process text messages
         if(msg['text'].indexOf('/echo ') > -1) {
           echo(msg);
@@ -35,8 +35,8 @@ function doPost(request) {
           sendMessage(msg, 'Soy Vicente del Bosque.', replyTo=true);
         } else if(msg['text'].toUpperCase() == 'HOLI') {
           sendMessage(msg, 'Siy Vicinti dil Bisqui', replyTo=true);
-        } else if(msg['text'].indexOf('/translate') == 0 ) {
-          translate(msg);
+        } else if(msg['text'].indexOf('/translate') > -1 ) {
+          handleTranslate(msg);
         } else if(msg['text'] == '/getLanguages') {
           getLanguages(msg);
         } else if(msg['text'] == '/help') {
@@ -99,6 +99,9 @@ function doPost(request) {
     // Process inline queries sent to the bot
     } else if (update.hasOwnProperty('inline_query')) {
       let inlineQuery = update['inline_query'];
+      
+      console.info(JSON.stringify(inlineQuery));
+      
       let query = inlineQuery['query'];
       
       let commands = query.split(' ');

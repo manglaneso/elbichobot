@@ -23,7 +23,7 @@ function subscribeToPerretes(msg) {
     sendMessage(msg, 'Este chat ya está suscrito a su ración de perretes diaria.', replyTo=true);
   } else {
     try {
-      let subscriptionFile = SpreadsheetApp.create(String(msg['chat']['id']), 1, 1);
+      let subscriptionFile = DriveApp.getFileById(SpreadsheetApp.create(String(msg['chat']['id']), 1, 1).getId());
       // TODO: Cambiar la forma de gestionar la ubicación de los archivos
       let rootFolder = DriveApp.getRootFolder();
       let perretesFolder = DriveApp.getFolderById(scriptProperties.getProperty('PerreteSuscriptionsFolderID'));

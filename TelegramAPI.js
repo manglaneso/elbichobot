@@ -18,13 +18,26 @@ function getWebhookInfo() {
  *
  * @return {object} JSON search result resource returned by Telegram API
  */
-function setWebhook() {  
+function setWebhook() {
+  
   let webhookUrl = scriptProperties.getProperty('WebhookUrl');
   let telegramApiAuthToken = scriptProperties.getProperty('TelegramAPIAuthToken');
   
-  let result = UrlFetchApp.fetch(`${apiTelegramBotBaseUrl}${apiToken}/setWebhook?url=${webhookUrl}?token=${telegramApiAuthToken}`).getContentText();
+  let payload = {
+    'method': 'setWebhook',
+    'allowed_updates': []
+  }
+
+  let data = {
+    'method': 'POST',
+    'payload': payload
+  }
+  
+  let result = UrlFetchApp.fetch(apiTelegramBotBaseUrl + apiToken + '/setWebhook?url=' + webhookUrl + '?token=' + telegramApiAuthToken, data).getContentText();
+  Logger.log(result);
   return JSON.parse(result);
 }
+
 
 /**
  * Deletes current Webkhook to stop receiving updates from Telegram API
@@ -32,7 +45,20 @@ function setWebhook() {
  * @return {object} JSON search result resource returned by Telegram API
  */
 function deleteWebHook() {
-  let result = UrlFetchApp.fetch(`${apiTelegramBotBaseUrl}${apiToken}/deleteWebhook`).getContentText();
+  
+  let webhookUrl = scriptProperties.getProperty('WebhookUrl');
+  let telegramApiAuthToken = scriptProperties.getProperty('TelegramAPIAuthToken');
+  
+  let payload = {
+    'method': 'deleteWebhook'
+  }
+
+  let data = {
+    'method': 'POST',
+    'payload': payload
+  }
+  
+  let result = UrlFetchApp.fetch(apiTelegramBotBaseUrl + apiToken + '/deleteWebhook', data).getContentText();
   Logger.log(result);
   return JSON.parse(result);
 }

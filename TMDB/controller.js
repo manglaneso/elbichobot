@@ -11,7 +11,7 @@ const tmdbBaseTvUrl = 'https://www.themoviedb.org/tv/';
  *
  * @param {object} inlineQuery Inline Query object received in Telegram API update
  */
-function handleSearchVideo(inlineQuery) {
+function handleSearchVideo(inlineQuery={"id":"5885869785744789","from":{"id":1370410,"is_bot":false,"first_name":"Manglaneso","username":"loMasBonitoDelMundo","language_code":"en"},"query":"searchVideo her","offset":""}) {
   let searchQuery =  replaceString('searchVideo ', '', inlineQuery['query']);
   
   let answers = [];

@@ -1,11 +1,6 @@
 {
   "timeZone": "Europe/Madrid",
   "dependencies": {
-    "enabledAdvancedServices": [{
-      "userSymbol": "Drive",
-      "serviceId": "drive",
-      "version": "v2"
-    }]
   },
   "webapp": {
     "access": "ANYONE_ANONYMOUS",

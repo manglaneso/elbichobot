@@ -12,71 +12,79 @@ function handlePole(msg) {
   
   let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
   
-  let ss = getChatSpreadsheet(String(msg['chat']['id']));  
+  if(!checkIfExcludedChat(msg, poleConfig)) {
+    let ss = getChatSpreadsheet(String(msg['chat']['id']));  
   
-  if(ss == null) {
-    // No ha habido poles en esta conversación
-    ss = initChatPoleSpreadsheet(msg['chat']['id']);
-  }
-      
-  let poleConfigSheet = ss.getSheetByName('CONFIG');
-  let poleConfigRange = poleConfigSheet.getRange(1, 1);
-  let poleConfigValues = JSON.parse(poleConfigRange.getValue());
-  
-  let commandPriority = poleConfig['names'].indexOf(msg.text);
-  
-  let today = new Date();
-  
-  let lastDate = new Date(poleConfigValues[msg['text']]['lastDate']);
+    if(ss == null) {
+      // No ha habido poles en esta conversación
+      ss = initChatPoleSpreadsheet(msg['chat']['id']);
+    }
     
-  let username = getBestUsername(msg['from']);
+    let poleConfigSheet = ss.getSheetByName('CONFIG');
+    let poleConfigRange = poleConfigSheet.getRange(1, 1);
+    let poleConfigValues = JSON.parse(poleConfigRange.getValue());
     
-  if(commandPriority == 0) {
-    // Es la pole, vamos a ver si la de hoy ya se ha hecho
+    let commandPriority = poleConfig['names'].indexOf(msg.text);
     
-    if(!isToday(poleConfigValues[msg['text']]['lastDate'])) {
-      // hay pole
-      
-      // TODO: Place this logic into a function
-      
-      let poleConfigConfiguration = poleConfig['configuration'][msg['text']];
-      
-      poleConfigValues[msg['text']]['lastDate'] = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-      poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
-      
-      poleConfigRange.setValue(JSON.stringify(poleConfigValues));
-      
-      increaseUserRank(msg['from'], username, msg['text'], ss);
-      sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
-    }  
-  } else {
+    let today = new Date();
     
-    if(!isToday(poleConfigValues[msg.text]['lastDate'])) {
-      // No se ha hecho hoy, vamos a ver si se ha hecho la anterior
+    let lastDate = new Date(poleConfigValues[msg['text']]['lastDate']);
+    
+    let username = getBestUsername(msg['from']);
+    
+    if(commandPriority == 0) {
+      // Es la pole, vamos a ver si la de hoy ya se ha hecho
+      
+      if(!isToday(poleConfigValues[msg['text']]['lastDate'])) {
+        // hay pole
+        
+        // TODO: Place this logic into a function
+        
+        let poleConfigConfiguration = poleConfig['configuration'][msg['text']];
+        
+        poleConfigValues[msg['text']]['lastDate'] = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+        poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
+        
+        poleConfigRange.setValue(JSON.stringify(poleConfigValues));
+        
+        increaseUserRank(msg['from'], username, msg['text'], ss);
+        sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
+      }  
+    } else {
+      
+      if(!isToday(poleConfigValues[msg.text]['lastDate'])) {
+        // No se ha hecho hoy, vamos a ver si se ha hecho la anterior
+        
+        let previousCommand = poleConfig['names'][commandPriority - 1];
+        
+        if(isToday(poleConfigValues[previousCommand]['lastDate'])) {
+          // Ya se ha hecho el comando anterior, así que podemos hacer el siguiente
+          if(!checkIfUserPoleo(msg['from']['id'], poleConfigValues)) {
+            // No hemos hecho nosotros ninguna pole anterior, así que la podemos hacer
+            let poleConfigConfiguration = poleConfig['configuration'][msg['text']];
             
-      let previousCommand = poleConfig['names'][commandPriority - 1];
+            poleConfigValues[msg['text']]['lastDate'] = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+            poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
             
-      if(isToday(poleConfigValues[previousCommand]['lastDate'])) {
-        // Ya se ha hecho el comando anterior, así que podemos hacer el siguiente
-        if(!checkIfUserPoleo(msg['from']['id'], poleConfigValues)) {
-          // No hemos hecho nosotros ninguna pole anterior, así que la podemos hacer
-          let poleConfigConfiguration = poleConfig['configuration'][msg['text']];
-          
-          poleConfigValues[msg['text']]['lastDate'] = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-          poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
-          
-          poleConfigRange.setValue(JSON.stringify(poleConfigValues));
-          
-          increaseUserRank(msg['from'], username, msg.text, ss);
-          sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
+            poleConfigRange.setValue(JSON.stringify(poleConfigValues));
+            
+            increaseUserRank(msg['from'], username, msg.text, ss);
+            sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
+          }
         }
       }
     }
   }
   
+
+  
   // Release the lock so that other processes can continue.
   lock.releaseLock();
   
+}
+
+function checkIfExcludedChat(msg, poleConfig) {
+  return poleConfig['excludedChats'].indexOf(String(msg['chat']['id'])) > -1;
 }
 
 /**
@@ -150,33 +158,34 @@ function computeGlobalRank(poleConfig, data) {
  *
  */
 function polerank(msg) {
-  let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
-  let ss = getChatSpreadsheet(String(msg['chat']['id']));
   
-  
-  if(ss) {
-    let toTemplate = {};
-  
-    for(let sheet in poleConfig['names']) {
-      toTemplate[poleConfig['names'][sheet]] = {};
-      let values = ss.getSheetByName(poleConfig['names'][sheet]).getRange('A1:C').getValues();
-      values.sort(comparePolerank);    
-      toTemplate[poleConfig['names'][sheet]]['sortedValues'] = values;
+  if(!checkIfExcludedChat(msg, poleConfig)) {
+    let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
+    let ss = getChatSpreadsheet(String(msg['chat']['id']));
+    if(ss) {
+      let toTemplate = {};
       
-    }
-    
-    let globalRank = computeGlobalRank(poleConfig, toTemplate);
-    
-    toTemplate['globalRank'] = globalRank;
-    
-    let template = HtmlService.createTemplateFromFile('pole/views/poleTemplate');
-    template['data'] = toTemplate;
-    template['priority'] = poleConfig['names'];
-
-    sendMessage(msg, template.evaluate().getContent(), replyTo=true);
-  } else {
-    sendMessage(msg, 'No se ha hecho nunca la Pole en este chat', replyTo=true);
-  }  
+      for(let sheet in poleConfig['names']) {
+        toTemplate[poleConfig['names'][sheet]] = {};
+        let values = ss.getSheetByName(poleConfig['names'][sheet]).getRange('A1:C').getValues();
+        values.sort(comparePolerank);    
+        toTemplate[poleConfig['names'][sheet]]['sortedValues'] = values;
+        
+      }
+      
+      let globalRank = computeGlobalRank(poleConfig, toTemplate);
+      
+      toTemplate['globalRank'] = globalRank;
+      
+      let template = HtmlService.createTemplateFromFile('pole/views/poleTemplate');
+      template['data'] = toTemplate;
+      template['priority'] = poleConfig['names'];
+      
+      sendMessage(msg, template.evaluate().getContent(), replyTo=true);
+    } else {
+      sendMessage(msg, 'No se ha hecho nunca la Pole en este chat', replyTo=true);
+    }  
+  }
 }
 
 /**
@@ -186,15 +195,16 @@ function polerank(msg) {
  *
  */
 function resetPolerank(msg) {
-  let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
-  let ss = getChatSpreadsheet(String(msg['chat']['id']));
-  
-  if(ss) {
-    DriveApp.getFileById(ss.getId()).setTrashed(true);
+  if(!checkIfExcludedChat(msg, poleConfig)) {
+    let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
+    let ss = getChatSpreadsheet(String(msg['chat']['id']));
     
-    sendMessage(msg, 'Hecho!', replyTo=true);
-  } else {
-    sendMessage(msg, 'Ha habido un problema reseteando el ranking de este chat', replyTo=true);
-  }
-  
+    if(ss) {
+      DriveApp.getFileById(ss.getId()).setTrashed(true);
+      
+      sendMessage(msg, 'Hecho!', replyTo=true);
+    } else {
+      sendMessage(msg, 'Ha habido un problema reseteando el ranking de este chat', replyTo=true);
+    }
+  }  
 }

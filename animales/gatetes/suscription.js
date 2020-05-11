@@ -6,7 +6,7 @@
  * @return {boolean} True if the chat is subscribed, False otherwise
  *
  */
-function isGateteSubscribed(chatId) {
+function isGateteSubscribed(chatId='-23232799') {
   let gatetesFolder = DriveApp.getFolderById(scriptProperties.getProperty('GateteSuscriptionsFolderID'));
   let gateteFile = gatetesFolder.getFilesByName(chatId);
   return gateteFile.hasNext()
@@ -23,7 +23,7 @@ function subscribeToGatetes(msg) {
     sendMessage(msg, 'Este chat ya está suscrito a su ración de gatetes diaria.', replyTo=true);
   } else {
     try {
-      let subscriptionFile = SpreadsheetApp.create(String(msg['chat']['id']), 1, 1);
+      let subscriptionFile = DriveApp.getFileById(SpreadsheetApp.create(String(msg['chat']['id']), 1, 1).getId());
       
       let rootFolder = DriveApp.getRootFolder();
       let gatetesFolder = DriveApp.getFolderById(scriptProperties.getProperty('GateteSuscriptionsFolderID'));

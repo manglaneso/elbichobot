@@ -4,12 +4,55 @@
  * @param {object} msg Telegram API message resource object
  *
  */
-function translate(msg) {
-  let params = msg['text'].split(';');
+
+function handleTranslate(msg) {
+  
+  let translateFrom;
+  let translateTo;
+  let translateText;
+  
+  try {
+    if(msg.hasOwnProperty('reply_to_message')) {
+      let messageText = msg['text'];    
+      messageText = replaceString('/translate ', '', messageText);
+      
+      let params = messageText.split(',');
+      
+      translateFrom = params[0];
+      translateTo = params[1];
+      
+      translateText = msg['reply_to_message']['text'];
+      
+    } else {
+      let messageText = msg['text'];    
+      messageText = replaceString('/translate ', '', messageText);
+      
+      let params = messageText.split(',');
+      
+      translateFrom = params[params.length - 2];
+      translateTo = params[params.length - 1];
+      
+      messageText = replaceString(',' + translateFrom, '', messageText);
+      messageText = replaceString(',' + translateTo, '', messageText);
+      
+      translateText = messageText;
+    }
+  
+    translate(msg, translateText, translateFrom, translateTo);
+  } catch(e) {
+    console.error('Error in formatting translate call');
+    console.error(e);
+    sendMessage(msg, 'Ya lo has roto.', replyTo=true);
+  }
+  
+}
+
+
+function translate(msg, text, translateFrom, translateTo) {
   let messageTranslated = '';
   
   try {
-    messageTranslated = LanguageApp.translate(replaceString("/translate ", "", params[0]), params[1].toLowerCase(), params[2].toLowerCase());
+    messageTranslated = LanguageApp.translate(text, translateFrom.toLowerCase(), translateTo.toLowerCase());
   } catch(e) {
     console.error('Error in translate');
     console.error(e);
