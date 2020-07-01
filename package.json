@@ -1,0 +1,22 @@
+{
+  "name": "elbichobot",
+  "version": "1.0.0",
+  "description": "Telegram bot with different functionalities",
+  "main": "src/Code.js",
+  "scripts": {
+    "push-to-app": "cd src && clasp push --force"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manglaneso/elbichobot.git"
+  },
+  "author": "manglaneso",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/manglaneso/elbichobot/issues"
+  },
+  "homepage": "https://github.com/manglaneso/elbichobot#readme",
+  "dependencies": {
+    "@google/clasp": "^2.3.0"
+  }
+}
