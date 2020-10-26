@@ -76,6 +76,12 @@ function doPost(request) {
         } else if(msg.text.toUpperCase() == 'QUE' || msg.text.toUpperCase() == 'QUÉ' || msg.text.toUpperCase() == 'QUE?'
                 || msg.text.toUpperCase() == 'QUÉ?' || msg.text == '¿QUE?' || msg.text == '¿QUÉ?') {
           sendMessage(msg, 'Cacahué', replyTo=true);
+        } else if(msg['text'] == '/chatInfo') {
+          getChatId(msg);
+        } else if(msg['text'].toUpperCase().indexOf(' MESSIRVE ') > -1 || msg['text'].toUpperCase().indexOf('MESSIRVE ') > -1 || msg['text'].toUpperCase().indexOf(' MESSIRVE') > -1 || msg['text'].toUpperCase() == 'MESSIRVE') {
+          sendMessirve(msg);
+        } else if(msg['text'].toUpperCase().indexOf(' NOMESSIRVE ') > -1 || msg['text'].toUpperCase().indexOf('NOMESSIRVE ') > -1 || msg['text'].toUpperCase().indexOf(' NOMESSIRVE') > -1 || msg['text'].toUpperCase() == 'NOMESSIRVE') {
+          sendNoMessirve(msg);
         }
          
         // Process messages specific for groups and supergroups

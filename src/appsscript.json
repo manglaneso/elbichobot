@@ -1,6 +1,11 @@
 {
   "timeZone": "Europe/Madrid",
   "dependencies": {
+    "enabledAdvancedServices": [{
+      "userSymbol": "BigQuery",
+      "serviceId": "bigquery",
+      "version": "v2"
+    }]
   },
   "webapp": {
     "access": "ANYONE_ANONYMOUS",

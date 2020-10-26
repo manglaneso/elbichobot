@@ -9,10 +9,12 @@ const stockMarketapiBaseUrl = 'https://www.alphavantage.co/';
 function handleStockPrice(msg) {
   let commands = msg['text'].split(' ');
   
-  if(commands[1].toLowerCase() == 'hoy') {
-    getLastDayIntraStockPrice(msg, commands[2]);
-  } else if(commands[1].toLowerCase() == 'ultima' || commands[1].toLowerCase() == 'última') {
-    getLastStockPrice(msg, commands[2]);
+  if(commands.length > 1) {
+    if(commands[1].toLowerCase() == 'hoy') {
+      getLastDayIntraStockPrice(msg, commands[2]);
+    } else if(commands[1].toLowerCase() == 'ultima' || commands[1].toLowerCase() == 'última') {
+      getLastStockPrice(msg, commands[2]);
+    }
   }
 }
 
