@@ -31,11 +31,11 @@ function getCurrentWeather(msg) {
     template.viento = jsonApiResult['wind']['speed'];
     template.amanecer = formatHours(jsonApiResult['sys']['sunrise']);
     template.atardecer = formatHours(jsonApiResult['sys']['sunset']);
-    
-    sendMessage(msg, template.evaluate().getContent(), replyTo=true);
+
+    telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
   } catch(e) {
     console.error('Error en getCurrentWeather');
     console.error(e);
-    sendMessage(msg, 'No se ha encontrado la ciudad.', replyTo=true);
+    telegramApi.sendMessage(msg, 'No se ha encontrado la ciudad.', replyTo=true);
   }
 }

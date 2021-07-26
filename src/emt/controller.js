@@ -32,6 +32,7 @@ function getStopTimes(msg) {
   let response = UrlFetchApp.fetch(emtUrlBase + '/v2/transport/busemtmad/stops/' + busStop + '/arrives/', options);
    
   let data = JSON.parse(response.getContentText());
+  console.log(data);
                                                 
   if(data.hasOwnProperty('data')) {
     if(data['data'].length > 0) {
@@ -41,17 +42,30 @@ function getStopTimes(msg) {
         if(arriveTimes.length > 0) {
           let template = HtmlService.createTemplateFromFile('emt/views/emtTemplate');
           template.data = arriveTimes;
-          sendMessage(msg, template.evaluate().getContent(), replyTo=true);
+          telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
         } else {
-          sendMessage(msg, 'No se ha podido obtener la información de parada.', replyTo=false);
+          telegramApi.sendMessage(msg, 'No se ha podido obtener la información de parada.', replyTo=false);
         }
       }
     } else {
-      sendMessage(msg, 'No se ha podido obtener la información de parada.', replyTo=false);
+      telegramApi.sendMessage(msg, 'No se ha podido obtener la información de parada.', replyTo=false);
     }
   } else {
-    sendMessage(msg, 'No se ha podido obtener la información de parada.', replyTo=false);
+    telegramApi.sendMessage(msg, 'No se ha podido obtener la información de parada.', replyTo=false);
   }
+}
+
+/**
+ * Gets expiration date of EMT access token to authorize calls to EMT API
+ *
+ * @param {object} jsonEMT EMT API login resource object
+ * @return {number} UNIX timestamp of expirationDate
+ *
+ */
+function getExpirationDate(jsonEMT) {
+  let updatedDate = new Date(jsonEMT['updatedAt']).getTime();
+  let tokenSecExpiration = jsonEMT['tokenSecExpiration'] * 1000;  
+  return updatedDate+tokenSecExpiration;
 }
 
 /**
@@ -65,7 +79,7 @@ function getAccessToken() {
   
   if(emtAccessInfo) {
     let jsonEMT = JSON.parse(emtAccessInfo);
-    let tokenExpirationDate = jsonEMT['tokenDteExpiration']['$date'];
+    let tokenExpirationDate = getExpirationDate(jsonEMT);
     if(dateIsOlder(tokenExpirationDate)) {
       return refreshAccessToken();
     } else {
@@ -79,7 +93,7 @@ function getAccessToken() {
 /**
  * Refreshes EMT access token to authorize calls to EMT API
  *
- * @return {string} EMT Access token
+ * @return {string|null} EMT Access token
  *
  */
 function refreshAccessToken() {

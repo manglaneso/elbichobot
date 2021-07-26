@@ -20,7 +20,7 @@ function isPerreteSubscribed(chatId) {
  */
 function subscribeToPerretes(msg) {
   if(isPerreteSubscribed(msg['chat']['id'])) {
-    sendMessage(msg, 'Este chat ya está suscrito a su ración de perretes diaria.', replyTo=true);
+    telegramApi.sendMessage(msg, 'Este chat ya está suscrito a su ración de perretes diaria.', replyTo=true);
   } else {
     try {
       let subscriptionFile = DriveApp.getFileById(SpreadsheetApp.create(String(msg['chat']['id']), 1, 1).getId());
@@ -33,7 +33,7 @@ function subscribeToPerretes(msg) {
       
       getPerrete(msg, caption='Gracias por suscribirse al servicio de perretes. A partir de ahora recibirás uno cada día. Además, aquí tienes el primero ;)')
     } catch(e) {
-      sendMessage(msg, 'Ha ocurrido un error al suscribirse al servicio de perretes. :(', replyTo=true);
+      telegramApi.sendMessage(msg, 'Ha ocurrido un error al suscribirse al servicio de perretes. :(', replyTo=true);
       console.error('Perretes suscription error');
       console.error(e);
     }
@@ -52,14 +52,14 @@ function unsubscribeFromPerretes(msg) {
       let perretesFolder = DriveApp.getFolderById(scriptProperties.getProperty('PerreteSuscriptionsFolderID'));
       let perreteFile = perretesFolder.getFilesByName(msg['chat']['id']);
       perreteFile.next().setTrashed(true);
-      sendMessage(msg, 'Te echaré de menos :(', replyTo=true);
+      telegramApi.sendMessage(msg, 'Te echaré de menos :(', replyTo=true);
     } catch(e) {
-      sendMessage(msg, 'Ha ocurrido un error desuscribiendote del servicio de perretes. Esto es una señal clarísima :)', replyTo=true);
+      telegramApi.sendMessage(msg, 'Ha ocurrido un error desuscribiendote del servicio de perretes. Esto es una señal clarísima :)', replyTo=true);
       console.error('Perretes unsubscription error');
       console.error(e);
     }    
   } else {
-    sendMessage(msg, 'No estás suscrito al servicio de Perretes.', replyTo=true);
+    telegramApi.sendMessage(msg, 'No estás suscrito al servicio de Perretes.', replyTo=true);
   }
 }
 

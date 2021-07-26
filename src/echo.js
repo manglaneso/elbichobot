@@ -5,5 +5,5 @@
  *
  */
 function echo(msg) {
-  sendMessage(msg, replaceString('/echo ', '', msg['text']));
+  telegramApi.sendMessage(msg, replaceString('/echo ', '', msg['text']));
 }

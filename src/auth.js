@@ -12,11 +12,7 @@ function checkIfAuthorizedChat(chatId) {
   
   let authorizedChatsArray = JSON.parse(authorizedChats);
   
-  if(authorizedChatsArray.indexOf(chatId) > -1) {
-    return true;
-  } else {
-    return false;
-  }
+  return authorizedChatsArray.indexOf(chatId) > -1;
 }
 
 /**
@@ -29,7 +25,7 @@ function checkIfAuthorizedChat(chatId) {
  */
 function checkTelegramAuth(request) {
   if(request['parameter'] && request['parameter']['token']) {
-    return request['parameter']['token'] == scriptProperties.getProperty('TelegramAPIAuthToken')
+    return request['parameter']['token'] === scriptProperties.getProperty('TelegramAPIAuthToken')
   }
   
   return false;

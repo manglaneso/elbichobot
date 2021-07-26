@@ -32,7 +32,7 @@ function handlePole(msg) {
     
     let username = getBestUsername(msg['from']);
     
-    if(commandPriority == 0) {
+    if(commandPriority === 0) {
       // Es la pole, vamos a ver si la de hoy ya se ha hecho
       
       if(!isToday(poleConfigValues[msg['text']]['lastDate'])) {
@@ -48,7 +48,7 @@ function handlePole(msg) {
         poleConfigRange.setValue(JSON.stringify(poleConfigValues));
         
         increaseUserRank(msg['from'], username, msg['text'], ss);
-        sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
+        telegramApi.sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
       }  
     } else {
       
@@ -69,7 +69,7 @@ function handlePole(msg) {
             poleConfigRange.setValue(JSON.stringify(poleConfigValues));
             
             increaseUserRank(msg['from'], username, msg.text, ss);
-            sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
+            telegramApi.sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
           }
         }
       }
@@ -99,7 +99,7 @@ function checkIfExcludedChat(msg, poleConfig) {
 function checkIfUserPoleo(userId, poleConfigValues) {
   
   for(let i in poleConfigValues) {    
-    if(poleConfigValues[i]['lastPoleador'] == userId && isToday(poleConfigValues[i]['lastDate'])) {
+    if(poleConfigValues[i]['lastPoleador'] === userId && isToday(poleConfigValues[i]['lastDate'])) {
       return true;
     }
   }
@@ -125,7 +125,7 @@ function computeGlobalRank(poleConfig, data) {
   for(let sheet in poleConfig['names']) { 
     let values = data[poleConfig['names'][sheet]]['sortedValues'];
     for(let i in values) {
-      if(values[i][0] != ''){
+      if(values[i][0] !== ''){
         if(globalRankObject[values[i][0]]) {
           globalRankObject[values[i][0]][values[i][1]] += values[i][2] * numLength
         } else {
@@ -172,18 +172,16 @@ function polerank(msg) {
         toTemplate[poleConfig['names'][sheet]]['sortedValues'] = values;
         
       }
-      
-      let globalRank = computeGlobalRank(poleConfig, toTemplate);
-      
-      toTemplate['globalRank'] = globalRank;
+
+      toTemplate['globalRank'] = computeGlobalRank(poleConfig, toTemplate);
       
       let template = HtmlService.createTemplateFromFile('pole/views/poleTemplate');
       template['data'] = toTemplate;
       template['priority'] = poleConfig['names'];
-      
-      sendMessage(msg, template.evaluate().getContent(), replyTo=true);
+
+      telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
     } else {
-      sendMessage(msg, 'No se ha hecho nunca la Pole en este chat', replyTo=true);
+      telegramApi.sendMessage(msg, 'No se ha hecho nunca la Pole en este chat', replyTo=true);
     }  
   }
 }
@@ -196,15 +194,14 @@ function polerank(msg) {
  */
 function resetPolerank(msg) {
   if(!checkIfExcludedChat(msg, poleConfig)) {
-    let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
     let ss = getChatSpreadsheet(String(msg['chat']['id']));
     
     if(ss) {
       DriveApp.getFileById(ss.getId()).setTrashed(true);
-      
-      sendMessage(msg, 'Hecho!', replyTo=true);
+
+      telegramApi.sendMessage(msg, 'Hecho!', replyTo=true);
     } else {
-      sendMessage(msg, 'Ha habido un problema reseteando el ranking de este chat', replyTo=true);
+      telegramApi.sendMessage(msg, 'Ha habido un problema reseteando el ranking de este chat', replyTo=true);
     }
   }  
 }

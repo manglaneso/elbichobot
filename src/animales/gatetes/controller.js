@@ -26,9 +26,9 @@ function getGatete(msg, caption=null) {
   let gateteType = gatete.getBlob().getContentType();
     
   if(gateteType.indexOf('gif') > -1) {
-    sendAnimation(msg, gatete, replyTo=true);
+    telegramApi.sendAnimation(msg, gatete, replyTo=true);
   } else  {
-    sendPhoto(msg, gatete, replyTo=true, caption);
+    telegramApi.sendPhoto(msg, gatete, replyTo=true, caption);
   }
   
 }

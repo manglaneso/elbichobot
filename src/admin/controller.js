@@ -5,5 +5,5 @@
  */
 function sendHelp(msg) {
   let message = HtmlService.createHtmlOutputFromFile('admin/views/help').getContent();
-  sendMessage(msg, message);
+  telegramApi.sendMessage(msg, message);
 }

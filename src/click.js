@@ -6,9 +6,9 @@
  *
  */
 function handleClick(msg) {
-  if(getRndInteger(0, 6) == 3) {
-    sendMessage(msg, '😵💥🔫 BAAANG', replyTo=true);
+  if(getRndInteger(0, 6) === 3) {
+    telegramApi.sendMessage(msg, '😵💥🔫 BAAANG', replyTo=true);
   } else {
-    sendMessage(msg, '😛☁️🔫', replyTo=true);
+    telegramApi.sendMessage(msg, '😛☁️🔫', replyTo=true);
   }
 }

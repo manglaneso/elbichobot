@@ -9,7 +9,7 @@
  */
 function replaceString(oldS, newS, fullS) {
   for (let i = 0; i < fullS.length; ++i) {
-    if (fullS.substring(i, i + oldS.length) == oldS) {
+    if (fullS.substring(i, i + oldS.length) === oldS) {
       fullS = fullS.substring(0, i) + newS + fullS.substring(i + oldS.length, fullS.length);
     }
   }
@@ -146,7 +146,7 @@ function isToday(dateString) {
   let today = new Date();
   let toCheck = new Date(dateString);
   
-  return toCheck.getDate() == today.getDate() && toCheck.getMonth() == today.getMonth() && toCheck.getFullYear() == today.getFullYear();
+  return toCheck.getDate() === today.getDate() && toCheck.getMonth() === today.getMonth() && toCheck.getFullYear() === today.getFullYear();
 
 }
 
@@ -160,4 +160,22 @@ function isToday(dateString) {
 function dateIsOlder(unixTimestamp) {
   let todayTimestamp = new Date().getTime();
   return todayTimestamp > unixTimestamp;
+}
+
+function getScriptProperties() {
+  Logger.log(JSON.stringify(scriptProperties.getProperties()));
+}
+
+function setProperties() {
+  const properties = {};
+  scriptProperties.setProperties(properties);
+}
+
+function logChatId(chatId) {
+  let logsArray = JSON.parse(scriptProperties.getProperty('logs'));
+
+  if(logsArray.indexOf(chatId) < 0) {
+    logsArray.push(chatId);
+    scriptProperties.setProperty('logs', JSON.stringify(logsArray));
+  }
 }

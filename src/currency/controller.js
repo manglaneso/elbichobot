@@ -18,12 +18,12 @@ function convertCurrency(msg) {
     let JSONdata = JSON.parse(data.getContentText());
     
     let result = amount * JSONdata['results'][conversion]['val'];
-    
-    sendMessage(msg, result + ' ' + params[3], replyTo=false);
+
+    telegramApi.sendMessage(msg, result + ' ' + params[3], replyTo=false);
   } catch(e) {
     console.error('Error en convertCurrency');
     console.error(e);
-    sendMessage(msg, 'No se ha podido realizar la conversion.', replyTo=true);
+    telegramApi.sendMessage(msg, 'No se ha podido realizar la conversion.', replyTo=true);
   }
 }
 
@@ -42,10 +42,10 @@ function getCurrecyCodes(msg) {
 
     let template = HtmlService.createTemplateFromFile('currency/views/currencyCodes');
     template.data = JSONdata['results'];
-    sendMessage(msg, template.evaluate().getContent(), replyTo=false);
+    telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=false);
   } catch(e) {
     console.error('Error en getCurrecyCodes');
     console.error(e);
-    sendMessage(msg, 'No se ha podido obtener la lista de divisas.', replyTo=true);
+    telegramApi.sendMessage(msg, 'No se ha podido obtener la lista de divisas.', replyTo=true);
   }
 }

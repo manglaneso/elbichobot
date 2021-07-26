@@ -27,7 +27,7 @@ function handleInlineLocation(inlineQuery) {
     
     answers.push(answer);
   }
-  
-  answerInlineQuery(inlineQuery, answers, cacheTime=300);
+
+  telegramApi.answerInlineQuery(inlineQuery, answers, cacheTime=300);
   
 }

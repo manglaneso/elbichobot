@@ -105,7 +105,7 @@ function increaseUserRank(user, username, command, ss) {
   let found = false;
   
   for(let i in data) {
-    if(data[i][0] == user['id']) {
+    if(data[i][0] === user['id']) {
       data[i][1] = username;
       data[i][2] += 1;
       sheet.getRange(parseInt(i) + 1, 1, 1, 3).setValues([data[i]]);

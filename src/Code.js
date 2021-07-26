@@ -2,6 +2,8 @@ let scriptProperties = PropertiesService.getScriptProperties();
 
 let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
 
+const telegramApi = TelegramBotAPI.client(scriptProperties.getProperty('TelegramBotApiToken'));
+
 /**
  * Enpoint suscribed as webhook in Telegram API which receives notifications once a message
  * is sent to the bot
@@ -10,11 +12,13 @@ let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
  */
 function doPost(request) {
   if(checkTelegramAuth(request)) {
+    //console.info(JSON.stringify(request));
      let update = JSON.parse(request['postData']['contents']);
   
     // Make sure this is update is a type message
     if (update.hasOwnProperty('message')) {
       let msg = update['message'];
+      logChatId(String(msg['chat']['id']));
       // console.info(JSON.stringify(msg));
       console.info(String(msg['chat']['id']));
       
@@ -29,39 +33,39 @@ function doPost(request) {
         // Process text messages
         if(msg['text'].indexOf('/echo ') > -1) {
           echo(msg);
-        } else if(msg['text'] == '/putosYayos' || msg['text'].toUpperCase().indexOf('PUTOS YAYOS') > -1 || msg['text'].toUpperCase() == 'PUTOS YAYOS') {
+        } else if(msg['text'] === '/putosYayos' || msg['text'].toUpperCase().indexOf('PUTOS YAYOS') > -1 || msg['text'].toUpperCase() === 'PUTOS YAYOS') {
           sendPutosYayos(msg);
-        } else if(msg['text'].toUpperCase() == 'HOLA') {
-          sendMessage(msg, 'Soy Vicente del Bosque.', replyTo=true);
-        } else if(msg['text'].toUpperCase() == 'HOLI') {
-          sendMessage(msg, 'Siy Vicinti dil Bisqui', replyTo=true);
+        } else if(msg['text'].toUpperCase() === 'HOLA') {
+          telegramApi.sendMessage(msg, 'Soy Vicente del Bosque.', replyTo=true);
+        } else if(msg['text'].toUpperCase() === 'HOLI') {
+          telegramApi.sendMessage(msg, 'Siy Vicinti dil Bisqui', replyTo=true);
         } else if(msg['text'].indexOf('/translate') > -1 ) {
           handleTranslate(msg);
-        } else if(msg['text'] == '/getLanguages') {
+        } else if(msg['text'] === '/getLanguages') {
           getLanguages(msg);
-        } else if(msg['text'] == '/help') {
+        } else if(msg['text'] === '/help') {
           sendHelp(msg);
         } else if(msg['text'].indexOf('/weather') > -1) {
           getCurrentWeather(msg);
         } else if(msg['text'].indexOf('/convertCurrency') > -1) {
           convertCurrency(msg);
-        } else if(msg['text'] == '/getCurrencies') {
+        } else if(msg['text'] === '/getCurrencies') {
           getCurrecyCodes(msg);
         } else if(msg['text'].toUpperCase().indexOf('/CALC') > -1) {
           mathjs(msg);
-        } else if(msg['text'].indexOf('/tiempoEMT') > -1) {
+        } else if(msg['text'].indexOf('/bus') > -1) {
           getStopTimes(msg);
-        } else if(msg['text'] == '/gatete') {
+        } else if(msg['text'] === '/gatete') {
           getGatete(msg);
-        } else if(msg['text'] == '/perrete') {
+        } else if(msg['text'] === '/perrete') {
           getPerrete(msg);
-        } else if(msg.text == '/dameGatetes') {
+        } else if(msg.text === '/dameGatetes') {
           subscribeToGatetes(msg);
-        } else if(msg.text == '/bastaDeGatetes') {
+        } else if(msg.text === '/bastaDeGatetes') {
           unsubscribeFromGatetes(msg);
-        } else if(msg.text == '/damePerretes') {
+        } else if(msg.text === '/damePerretes') {
           subscribeToPerretes(msg);
-        } else if(msg.text == '/bastaDePerretes') {
+        } else if(msg.text === '/bastaDePerretes') {
           unsubscribeFromPerretes(msg);
         } else if(msg['text'].indexOf('/stockPrice') > -1) {
           handleStockPrice(msg);
@@ -69,14 +73,14 @@ function doPost(request) {
           handleProximaFiesta(msg);
         } else if(msg['text'].indexOf('/proximasFiestas') > -1) {
           handleProximasFiestas(msg);
-        } else if(msg['text'] == '/click') {
+        } else if(msg['text'] === '/click') {
           handleClick(msg);
         } else if(msg['text'].indexOf('/pokedex') > -1) {
           handlePokedex(msg);
-        } else if(msg.text.toUpperCase() == 'QUE' || msg.text.toUpperCase() == 'QUÉ' || msg.text.toUpperCase() == 'QUE?'
-                || msg.text.toUpperCase() == 'QUÉ?' || msg.text == '¿QUE?' || msg.text == '¿QUÉ?') {
-          sendMessage(msg, 'Cacahué', replyTo=true);
-        } else if(msg['text'] == '/chatInfo') {
+        } else if(msg.text.toUpperCase() === 'QUE' || msg.text.toUpperCase() === 'QUÉ' || msg.text.toUpperCase() === 'QUE?'
+                || msg.text.toUpperCase() === 'QUÉ?' || msg.text === '¿QUE?' || msg.text === '¿QUÉ?') {
+          telegramApi.sendMessage(msg, 'Cacahué', replyTo=true);
+        } else if(msg['text'] === '/chatInfo') {
           getChatId(msg);
         } else if(msg['text'].toUpperCase().indexOf(' MESSIRVE ') > -1 || msg['text'].toUpperCase().indexOf('MESSIRVE ') > -1 || msg['text'].toUpperCase().indexOf(' MESSIRVE') > -1 || msg['text'].toUpperCase() == 'MESSIRVE') {
           sendMessirve(msg);
@@ -85,14 +89,14 @@ function doPost(request) {
         }
          
         // Process messages specific for groups and supergroups
-        if(msg.chat.type == 'group' || msg.chat.type == 'supergroup') {
+        if(msg['chat']['type'] === 'group' || msg['chat']['type'] === 'supergroup') {
           let lowerCaseTextMessage = msg['text'].toLowerCase();
           if(poleConfig['names'].indexOf(lowerCaseTextMessage) > -1) {
             msg['text'] = lowerCaseTextMessage;
             handlePole(msg);
-          } else if(msg['text'] == '/polerank') {
+          } else if(msg['text'] === '/polerank') {
             polerank(msg);
-          } else if(msg['text'] == '/resetPolerank') {
+          } else if(msg['text'] === '/resetPolerank') {
             resetPolerank(msg);
           }
         }
@@ -105,6 +109,7 @@ function doPost(request) {
     // Process inline queries sent to the bot
     } else if (update.hasOwnProperty('inline_query')) {
       let inlineQuery = update['inline_query'];
+      logChatId(String(inlineQuery['chat']['id']));
       
       console.info(JSON.stringify(inlineQuery));
       
@@ -114,11 +119,11 @@ function doPost(request) {
       
       let command = commands[0];
       
-      if(command == 'searchCompany') {
+      if(command === 'searchCompany') {
         handleStockPriceInlineQuery(inlineQuery, commands)
-      } else if(command == 'encontrar') {
+      } else if(command === 'encontrar') {
         handleInlineLocation(inlineQuery);
-      } else if(command == 'searchVideo') {
+      } else if(command === 'searchVideo') {
         handleSearchVideo(inlineQuery);
       }
     }

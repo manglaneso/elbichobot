@@ -20,7 +20,7 @@ function isGateteSubscribed(chatId='-23232799') {
  */
 function subscribeToGatetes(msg) {
   if(isGateteSubscribed(msg['chat']['id'])) {
-    sendMessage(msg, 'Este chat ya está suscrito a su ración de gatetes diaria.', replyTo=true);
+    telegramApi.sendMessage(msg, 'Este chat ya está suscrito a su ración de gatetes diaria.', replyTo=true);
   } else {
     try {
       let subscriptionFile = DriveApp.getFileById(SpreadsheetApp.create(String(msg['chat']['id']), 1, 1).getId());
@@ -33,7 +33,7 @@ function subscribeToGatetes(msg) {
       
       getGatete(msg, caption='Gracias por suscribirse al servicio de gatetes. A partir de ahora recibirás uno cada día. Además, aquí tienes el primero ;)')
     } catch(e) {
-      sendMessage(msg, 'Ha ocurrido un error al suscribirse al servicio de gatetes. :(', replyTo=true);
+      telegramApi.sendMessage(msg, 'Ha ocurrido un error al suscribirse al servicio de gatetes. :(', replyTo=true);
       console.error('Gatetes suscription error');
       console.error(e);
     }
@@ -52,14 +52,14 @@ function unsubscribeFromGatetes(msg) {
       let gatetesFolder = DriveApp.getFolderById(scriptProperties.getProperty('GateteSuscriptionsFolderID'));
       let gateteFile = gatetesFolder.getFilesByName(msg['chat']['id']);
       gateteFile.next().setTrashed(true);
-      sendMessage(msg, 'Te echaré de menos :(', replyTo=true);
+      telegramApi.sendMessage(msg, 'Te echaré de menos :(', replyTo=true);
     } catch(e){
-      sendMessage(msg, 'Ha ocurrido un error desuscribiendote del servicio de gatetes. Esto es una señal clarísima :)', replyTo=true);
+      telegramApi.sendMessage(msg, 'Ha ocurrido un error desuscribiendote del servicio de gatetes. Esto es una señal clarísima :)', replyTo=true);
       console.error('Gatetes unsubscription error');
       console.error(e);
     }    
   } else {
-    sendMessage(msg, 'No estás suscrito al servicio de gatetes.', replyTo=true);
+    telegramApi.sendMessage(msg, 'No estás suscrito al servicio de gatetes.', replyTo=true);
   }
 }
 

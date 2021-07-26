@@ -10,7 +10,7 @@ const fiestasCalendar = 'es.spain#holiday@group.v.calendar.google.com';
 function handleProximaFiesta(msg) {
   let filter =  replaceString('/proximaFiesta ', '', msg['text']);
   
-  if(filter != '/proximaFiesta') {
+  if(filter !== '/proximaFiesta') {
     getNextFiesta(msg, filter);
   } else {
     getNextFiesta(msg);
@@ -28,7 +28,7 @@ function handleProximaFiesta(msg) {
 function handleProximasFiestas(msg) {
   let filter =  replaceString('/proximasFiestas ', '', msg['text']);
   
-  if(filter != '/proximasFiestas') {
+  if(filter !== '/proximasFiestas') {
     getNextFiesta(msg, filter);
   } else {
     getNextFiesta(msg);
@@ -62,7 +62,7 @@ function getNextFiesta(msg, filter=undefined) {
     template['data'] = toTemplate;
     
   } else {
-    if(filter.toLowerCase() == 'nacional') {
+    if(filter.toLowerCase() === 'nacional') {
       var results = fiestas.filter(fiesta => fiesta.getTitle().indexOf('(') < 0);
     } else {
       var results = fiestas.filter(fiesta => fiesta.getTitle().toLowerCase().indexOf(filter.toLowerCase()) > -1 || fiesta.getTitle().indexOf('(') < 0);
@@ -74,8 +74,8 @@ function getNextFiesta(msg, filter=undefined) {
     template['data'] = toTemplate;  
 
   }
-  
-  sendMessage(msg, template.evaluate().getContent(), replyTo=true);
+
+  telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
  
 }
 
@@ -104,7 +104,7 @@ function getNextFiestas(msg, filter=undefined) {
     template['data'] = fiestas;
     
   } else {
-    if(filter.toLowerCase() == 'nacionales') {
+    if(filter.toLowerCase() === 'nacionales') {
       var results = fiestas.filter(fiesta => fiesta.getTitle().indexOf('(') < 0);
     } else {
       var results = fiestas.filter(fiesta => fiesta.getTitle().toLowerCase().indexOf(filter.toLowerCase()) > -1 || fiesta.getTitle().indexOf('(') < 0);
@@ -113,7 +113,7 @@ function getNextFiestas(msg, filter=undefined) {
     template['data'] = results;  
 
   }
-  
-  sendMessage(msg, template.evaluate().getContent(), replyTo=true);
+
+  telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
  
 }

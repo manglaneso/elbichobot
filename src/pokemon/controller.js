@@ -14,7 +14,7 @@ const capitalise = word => word.charAt(0).toUpperCase() + word.slice(1);
 const format_type = pokemon => pokemon.type.map(capitalise).join("/");
 
 // Check if searched pokemon exists on JSON DB
-const match = (pokemon, id_or_name) => pokemon['id'] == id_or_name || pokemon['slug'].includes(id_or_name.toLowerCase());
+const match = (pokemon, id_or_name) => pokemon['id'] === id_or_name || pokemon['slug'].includes(id_or_name.toLowerCase());
 
 
 /**
@@ -100,13 +100,11 @@ const format_against_types = (pokemon_types, types) => {
 
     const result = format_type_advantage(types_object);
 
-    let ret = {
-      'formated_weak_string': `${result[0]}`,
-      'formated_resistant_string': result[1] !== "" ? `${result[1]}` : "",
-      'formated_inmune_string': result[2] !== "" ? `${result[2]}` : ""
-    }
-    
-    return ret;
+    return {
+        'formated_weak_string': `${result[0]}`,
+        'formated_resistant_string': result[1] !== "" ? `${result[1]}` : "",
+        'formated_inmune_string': result[2] !== "" ? `${result[2]}` : ""
+    };
 };
 
 /**
@@ -174,11 +172,11 @@ function getPokedex(msg, pokemon) {
     template['data'] = toTemplate;
     
     let caption = template.evaluate().getContent();
-    
-    sendPhoto(msg, UrlFetchApp.fetch(pokemonResource['ThumbnailImage']), replyTo=true, caption=caption);
+
+    telegramApi.sendPhoto(msg, UrlFetchApp.fetch(pokemonResource['ThumbnailImage']), replyTo=true, caption=caption);
     
   } else {
-    sendMessage(msg, 'No se ha encontrado el Pokemon :(', replyTo=true);
+    telegramApi.sendMessage(msg, 'No se ha encontrado el Pokemon :(', replyTo=true);
   }
   
 }

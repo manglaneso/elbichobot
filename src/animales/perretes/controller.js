@@ -26,9 +26,9 @@ function getPerrete(msg, caption=null) {
   let perreteType = perrete.getBlob().getContentType();
     
   if(perreteType.indexOf('gif') > -1) {
-    sendAnimation(msg, perrete, replyTo=true);
+    telegramApi.sendAnimation(msg, perrete, replyTo=true);
   } else  {
-    sendPhoto(msg, perrete, replyTo=true, caption);
+    telegramApi.sendPhoto(msg, perrete, replyTo=true, caption);
   }
   
 }

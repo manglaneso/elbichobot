@@ -43,7 +43,7 @@ function handleSearchVideo(inlineQuery={"id":"5885869785744789","from":{"id":137
       'originalLanguage': response['results'][i]['original_language'],
     }
     
-    if(response['results'][i]['media_type'] == 'tv') {
+    if(response['results'][i]['media_type'] === 'tv') {
       toTemplate['tmdbUrl'] = tmdbBaseTvUrl + response['results'][i]['id'];
     } else {
       toTemplate['tmdbUrl'] = tmdbBaseUrl + response['results'][i]['id'];
@@ -55,8 +55,8 @@ function handleSearchVideo(inlineQuery={"id":"5885869785744789","from":{"id":137
     
     answers.push(answer);
   }
-  
-  answerInlineQuery(inlineQuery, answers, cacheTime=300);
+
+  telegramApi.answerInlineQuery(inlineQuery, answers, cacheTime=300);
 }
 
 /**
@@ -144,7 +144,7 @@ function getMovieCast(movieObject) {
   for(let elem in cast) {
     if(i < 9) {
       ret += `${cast[elem]['name']}, `;
-    } else if(i == 9) {
+    } else if(i === 9) {
       ret += cast[elem]['name'];
     } else {
       break;
@@ -166,7 +166,7 @@ function getMovieDirector(movieObject) {
   let crew = movieObject['credits']['crew']
   
   for(let elem in crew) {
-    if(crew[elem]['job'] == 'Director')
+    if(crew[elem]['job'] === 'Director')
       return crew[elem]['name'];
   }  
 }
@@ -184,7 +184,7 @@ function getBestSearchResult(searchResults, fileName) {
   let results = searchResults['results'];
   
   for(let result in results) {
-    if(results[result]['title'].toLowerCase() == fileName.toLowerCase()) {
+    if(results[result]['title'].toLowerCase() === fileName.toLowerCase()) {
       return results[result];
     }
   }

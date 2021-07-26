@@ -1,17 +1,31 @@
 {
   "timeZone": "Europe/Madrid",
   "dependencies": {
-    "enabledAdvancedServices": [{
-      "userSymbol": "BigQuery",
-      "serviceId": "bigquery",
-      "version": "v2"
-    }]
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "BigQuery",
+        "serviceId": "bigquery",
+        "version": "v2"
+      }
+    ],
+    "libraries": [
+      {
+        "userSymbol": "TelegramBotAPI",
+        "version": "4",
+        "libraryId": "1doJWr3Q1v2WZamAvcT2_xr6p12wNvheF403cXdYhTbTxu6GMvWkqwarn"
+      }
+    ]
   },
   "webapp": {
     "access": "ANYONE_ANONYMOUS",
     "executeAs": "USER_DEPLOYING"
   },
   "exceptionLogging": "STACKDRIVER",
-  "oauthScopes": ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/script.external_request", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/calendar.readonly"],
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/calendar.readonly"
+  ],
   "runtimeVersion": "V8"
 }
