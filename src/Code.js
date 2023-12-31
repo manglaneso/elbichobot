@@ -1,5 +1,7 @@
 let scriptProperties = PropertiesService.getScriptProperties();
 
+let cache = CacheService.getScriptCache();
+
 let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
 
 const telegramApi = TelegramBotAPI.client(scriptProperties.getProperty('TelegramBotApiToken'));
@@ -18,6 +20,8 @@ function doPost(request) {
     // Make sure this is update is a type message
     if (update.hasOwnProperty('message')) {
       let msg = update['message'];
+      manageCache(msg);
+      
       logChatId(String(msg['chat']['id']));
       // console.info(JSON.stringify(msg));
       console.info(String(msg['chat']['id']));
@@ -109,7 +113,7 @@ function doPost(request) {
     // Process inline queries sent to the bot
     } else if (update.hasOwnProperty('inline_query')) {
       let inlineQuery = update['inline_query'];
-      logChatId(String(inlineQuery['chat']['id']));
+      //logChatId(String(inlineQuery['chat']['id']));
       
       console.info(JSON.stringify(inlineQuery));
       

@@ -46,8 +46,7 @@ function handlePole(msg) {
         poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
         
         poleConfigRange.setValue(JSON.stringify(poleConfigValues));
-        
-        increaseUserRank(msg['from'], username, msg['text'], ss);
+        increaseUserRank(msg['from'], username, msg.text, ss);
         telegramApi.sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
       }  
     } else {
@@ -67,7 +66,6 @@ function handlePole(msg) {
             poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
             
             poleConfigRange.setValue(JSON.stringify(poleConfigValues));
-            
             increaseUserRank(msg['from'], username, msg.text, ss);
             telegramApi.sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
           }
@@ -157,7 +155,50 @@ function computeGlobalRank(poleConfig, data) {
  * @param {object} msg Telegram API message resource object
  *
  */
-function polerank(msg) {
+function polerank(msg = {'chat':{'id': '-23232799'}}) {
+  
+  if(!checkIfExcludedChat(msg, poleConfig)) {
+    let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
+    let ss = getChatSpreadsheet(String(msg['chat']['id']));
+    if(ss) {
+      let toTemplate = {};
+      
+      for(let sheet in poleConfig['names']) {
+        toTemplate[poleConfig['names'][sheet]] = {};
+        let values = ss.getSheetByName(poleConfig['names'][sheet]).getRange('A1:C').getValues();
+        values.sort(comparePolerank);    
+        toTemplate[poleConfig['names'][sheet]]['sortedValues'] = values;
+        
+      }
+
+      toTemplate['globalRank'] = computeGlobalRank(poleConfig, toTemplate);
+
+      if(String(msg['chat']['id']) == "-1001426910007") {
+        let today = new Date();
+
+        if (today.getDate() === 1 && today.getMonth() === 0 && today.getFullYear() === 2022) {
+           if (!scriptProperties.getProperty('picadaDone')) {
+            scriptProperties.setProperty('picadaDone', "true");
+            anuncioGanador(msg, toTemplate['globalRank']);
+            picada(msg, toTemplate['globalRank']);
+           }
+        }
+        
+      }
+      
+      let template = HtmlService.createTemplateFromFile('pole/views/poleTemplate');
+      template['data'] = toTemplate;
+      template['priority'] = poleConfig['names'];
+
+      telegramApi.sendMessage(msg, template.evaluate().getContent(), parseMode='HTML', replyTo=true);
+    } else {
+      telegramApi.sendMessage(msg, 'No se ha hecho nunca la Pole en este chat', replyTo=true);
+    }  
+  }
+}
+
+
+function aasdasdas(msg = {'chat':{'id': '-1001426910007'}}) {
   
   if(!checkIfExcludedChat(msg, poleConfig)) {
     let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
@@ -179,9 +220,7 @@ function polerank(msg) {
       template['data'] = toTemplate;
       template['priority'] = poleConfig['names'];
 
-      telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
     } else {
-      telegramApi.sendMessage(msg, 'No se ha hecho nunca la Pole en este chat', replyTo=true);
     }  
   }
 }
@@ -199,9 +238,9 @@ function resetPolerank(msg) {
     if(ss) {
       DriveApp.getFileById(ss.getId()).setTrashed(true);
 
-      telegramApi.sendMessage(msg, 'Hecho!', replyTo=true);
+      telegramApi.sendMessage(msg, 'Hecho!', parseMode="HTML", replyTo=true);
     } else {
-      telegramApi.sendMessage(msg, 'Ha habido un problema reseteando el ranking de este chat', replyTo=true);
+      telegramApi.sendMessage(msg, 'Ha habido un problema reseteando el ranking de este chat', parseMode="HTML", replyTo=true);
     }
   }  
 }
