@@ -13,6 +13,8 @@ const telegramApi = TelegramBotAPI.client(scriptProperties.getProperty('Telegram
  * @param {object} request HTTP Request object received.
  */
 function doPost(request) {
+  console.info(JSON.stringify(request));
+  
   if(checkTelegramAuth(request)) {
     //console.info(JSON.stringify(request));
      let update = JSON.parse(request['postData']['contents']);
@@ -23,8 +25,6 @@ function doPost(request) {
       manageCache(msg);
       
       logChatId(String(msg['chat']['id']));
-      // console.info(JSON.stringify(msg));
-      console.info(String(msg['chat']['id']));
       
       // Process text messages and images with captions
       if(msg['text']) {  
@@ -83,7 +83,7 @@ function doPost(request) {
           handlePokedex(msg);
         } else if(msg.text.toUpperCase() === 'QUE' || msg.text.toUpperCase() === 'QUÉ' || msg.text.toUpperCase() === 'QUE?'
                 || msg.text.toUpperCase() === 'QUÉ?' || msg.text === '¿QUE?' || msg.text === '¿QUÉ?') {
-          telegramApi.sendMessage(msg, 'Cacahué', replyTo=true);
+          telegramApi.sendMessage(msg, 'Cacahué');
         } else if(msg['text'] === '/chatInfo') {
           getChatId(msg);
         } else if(msg['text'].toUpperCase().indexOf(' MESSIRVE ') > -1 || msg['text'].toUpperCase().indexOf('MESSIRVE ') > -1 || msg['text'].toUpperCase().indexOf(' MESSIRVE') > -1 || msg['text'].toUpperCase() == 'MESSIRVE') {

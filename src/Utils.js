@@ -172,6 +172,7 @@ function setProperties() {
 }
 
 function logChatId(chatId) {
+  console.log(chatId);
   let logsArray = JSON.parse(scriptProperties.getProperty('logs'));
 
   if(logsArray.indexOf(chatId) < 0) {
