@@ -29,7 +29,7 @@ jobs:
       uses: finnp/create-file-action@2.0.0
       env:
         FILE_NAME: src/.clasp.json
-        FILE_DATA: > {"scriptId":"1f0zZRWVLGjl42rovb2OxOxg_H8OtlLdSS75wSG2kpdOQf7KJqv0M4cDZ"}
+        FILE_DATA: '{"scriptId":"1f0zZRWVLGjl42rovb2OxOxg_H8OtlLdSS75wSG2kpdOQf7KJqv0M4cDZ"}'
 
     - name: Clasp Token
       uses: namaggarwal/clasp-token-action@v0.0.1
