@@ -52,5 +52,4 @@ jobs:
 
     - name: Deploy it
       run: |
-        env
         npm run-script deploy-app
