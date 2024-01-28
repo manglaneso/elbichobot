@@ -33,25 +33,30 @@ function getStopTimes(msg) {
    
   let data = JSON.parse(response.getContentText());
   console.log(data);
-                                                
-  if(data.hasOwnProperty('data')) {
-    if(data['data'].length > 0) {
-      if(data['data'][0]['Arrive']) {
-        let arriveTimes = data['data'][0]['Arrive'];
+
+  if(!data.hasOwnProperty('data')) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se ha podido obtener la información de parada.', replyParameters: {'message_id': msg['message_id']}});
+    return;
+  }
+
+  if (data['data'].length <= 0) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se ha podido obtener la información de parada.', replyParameters: {'message_id': msg['message_id']}});
+    return;
+  }
+
+  if(data['data'][0]['Arrive'] === null) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se ha podido obtener la información de parada.', replyParameters: {'message_id': msg['message_id']}});
+    return;
+  }
+
+  let arriveTimes = data['data'][0]['Arrive'];
         
-        if(arriveTimes.length > 0) {
-          let template = HtmlService.createTemplateFromFile('emt/views/emtTemplate');
-          template.data = arriveTimes;
-          telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
-        } else {
-          telegramApi.sendMessage(msg, 'No se ha podido obtener la información de parada.', replyTo=false);
-        }
-      }
-    } else {
-      telegramApi.sendMessage(msg, 'No se ha podido obtener la información de parada.', replyTo=false);
-    }
+  if(arriveTimes.length > 0) {
+    let template = HtmlService.createTemplateFromFile('emt/views/emtTemplate');
+    template.data = arriveTimes;
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: template.evaluate().getContent(), parseMode: 'HTML', replyParameters: {'message_id': msg['message_id']}});
   } else {
-    telegramApi.sendMessage(msg, 'No se ha podido obtener la información de parada.', replyTo=false);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se ha podido obtener la información de parada.', replyParameters: {'message_id': msg['message_id']}});
   }
 }
 
@@ -76,17 +81,17 @@ function getExpirationDate(jsonEMT) {
  */
 function getAccessToken() {
   let emtAccessInfo = scriptProperties.getProperty('EMTAccessInfo');
-  
-  if(emtAccessInfo) {
-    let jsonEMT = JSON.parse(emtAccessInfo);
-    let tokenExpirationDate = getExpirationDate(jsonEMT);
-    if(dateIsOlder(tokenExpirationDate)) {
-      return refreshAccessToken();
-    } else {
-      return jsonEMT['accessToken'];
-    }
-  } else {
+
+  if (emtAccessInfo === null) {
     return refreshAccessToken();
+  }
+
+  let jsonEMT = JSON.parse(emtAccessInfo);
+  let tokenExpirationDate = getExpirationDate(jsonEMT);
+  if(dateIsOlder(tokenExpirationDate)) {
+    return refreshAccessToken();
+  } else {
+    return jsonEMT['accessToken'];
   }
 }
 
@@ -107,15 +112,15 @@ function refreshAccessToken() {
   }
   
   let data = JSON.parse(UrlFetchApp.fetch(emtUrlBase + '/v2/mobilitylabs/user/login', options));
-    
-  if(data.hasOwnProperty('data')) {
-    if(data['data'].length > 0) {
-      scriptProperties.setProperty('EMTAccessInfo', JSON.stringify(data['data'][0]));
-      return data['data'][0]['accessToken'];
-    } else {
-      return null;
-    }
-  } else {
+  
+  if(!data.hasOwnProperty('data')) {
     return null;
   }
+
+  if(data['data'].length <= 0) {
+    return null;
+  }
+
+  scriptProperties.setProperty('EMTAccessInfo', JSON.stringify(data['data'][0]));
+  return data['data'][0]['accessToken'];
 }

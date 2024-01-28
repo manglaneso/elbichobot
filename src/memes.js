@@ -3,11 +3,11 @@ const noMessirveFileId = '1kL9k4mNzYUa02oWvo71J28ed0nDMVXb5';
 
 function sendMessirve(msg) {
   let file = DriveApp.getFileById(messirveFileId);
-  telegramApi.sendAnimation(msg, file, replyTo=false)
+  telegramApi.sendAnimation({chatId: String(msg['chat']['id']), animation: file.getBlob(), replyParameters: {'message_id': msg['message_id']}});
 }
 
 function sendNoMessirve(msg) {
   let file = DriveApp.getFileById(noMessirveFileId);
-  telegramApi.sendAnimation(msg, file, replyTo=false)
+  telegramApi.sendAnimation({chatId: String(msg['chat']['id']), animation: file.getBlob(), replyParameters: {'message_id': msg['message_id']}});
 }
 

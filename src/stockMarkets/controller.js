@@ -8,13 +8,15 @@ const stockMarketapiBaseUrl = 'https://www.alphavantage.co/';
  */
 function handleStockPrice(msg) {
   let commands = msg['text'].split(' ');
+
+  if(commands.length <= 0) {
+    return;
+  }
   
-  if(commands.length > 1) {
-    if(commands[1].toLowerCase() === 'hoy') {
-      getLastDayIntraStockPrice(msg, commands[2]);
-    } else if(commands[1].toLowerCase() === 'ultima' || commands[1].toLowerCase() === 'última') {
-      getLastStockPrice(msg, commands[2]);
-    }
+  if(commands[1].toLowerCase() === 'hoy') {
+    getLastDayIntraStockPrice(msg, commands[2]);
+  } else if(commands[1].toLowerCase() === 'ultima' || commands[1].toLowerCase() === 'última') {
+    getLastStockPrice(msg, commands[2]);
   }
 }
 
@@ -72,7 +74,7 @@ function getLastDayIntraStockPrice(msg, companyCode='GOOG') {
   try {
     var data = UrlFetchApp.fetch(apiEndpoint, options);
   } catch(e) {
-    telegramApi.sendMessage(msg, 'No se han podido obtener los datos para esa compañia', replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se han podido obtener los datos para esa compañia', replyParameters: {'message_id': msg['message_id']}});
     return;
   }
   
@@ -95,7 +97,7 @@ function getLastDayIntraStockPrice(msg, companyCode='GOOG') {
   let searchDateCount = 0;
   while(!timeSeriesElements.some(hasDate)) {
     if(searchDateCount > 5) {
-      telegramApi.sendMessage(msg, 'No se han podido obtener los datos para esa compañia', replyTo=true);
+      telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se han podido obtener los datos para esa compañia', replyParameters: {'message_id': msg['message_id']}});
       return;
     }
     let todayDay = today.getDate();
@@ -127,8 +129,7 @@ function getLastDayIntraStockPrice(msg, companyCode='GOOG') {
     .setPointStyle(Charts.PointStyle.NONE)
     .build();
 
-  telegramApi.sendPhoto(msg, chart, replyTo=false, caption=null)
-  
+  telegramApi.sendPhoto({chatId: String(msg['chat']['id']), photo: chart.getBlob()});      
 }
 
 /**
@@ -154,7 +155,7 @@ function getLastStockPrice(msg={'chat':{'id': -23232799}}, companyCode='ANIOY') 
   try {
     var data = UrlFetchApp.fetch(apiEndpoint, options);
   } catch(e) {
-    telegramApi.sendMessage(msg, 'No se han podido obtener los datos para esa compañia', replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se han podido obtener los datos para esa compañia', replyParameters: {'message_id': msg['message_id']}});
   }
   
   let JSONdata = JSON.parse(data);
@@ -164,8 +165,7 @@ function getLastStockPrice(msg={'chat':{'id': -23232799}}, companyCode='ANIOY') 
   if(values) {
     let template = HtmlService.createTemplateFromFile('stockMarkets/views/lastStockPrice');
     template['data'] = values;
-
-    telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: template.evaluate().getContent(), parseMode: 'HTML', replyParameters: {'message_id': msg['message_id']}});
   } else {
     return null;
   }

@@ -5,5 +5,5 @@
  */
 function sendHelp(msg) {
   let message = HtmlService.createHtmlOutputFromFile('admin/views/help').getContent();
-  telegramApi.sendMessage(msg, message);
+  telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: message, parseMode: 'HTML'});
 }
