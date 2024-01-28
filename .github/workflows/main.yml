@@ -29,7 +29,7 @@ jobs:
       env:
         FILE_NAME: src/.clasp.json
         FILE_DATA: '{"scriptId":"1361pWd4w4FAeAf4au1FtY8xgT_tMPeNFW9m2Rydjvf5vumP-wqdBWerK"}'
-    
+
     - name: Clasp Token
       uses: namaggarwal/clasp-token-action@v0.0.1
       with:
