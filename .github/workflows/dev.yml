@@ -14,7 +14,8 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    env: dev
+    env: 
+      DEPLOYMENT_ID: AKfycby30CeEBMCO4uXKYrZnHqQFAPoPz-AOjfQ9AkI3y3nppEFsUqt1H-uvtR-oa0r0tFcFfQ
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
