@@ -25,11 +25,11 @@ jobs:
       with:
         node-version: '10.x'
 
-    - name: Create File
+    - name: Create .clasp.json
       uses: finnp/create-file-action@2.0.0
       env:
         FILE_NAME: src/.clasp.json
-        FILE_DATA: {"scriptId":"AKfycbwWQUQDAq25CzNKuakb3teaKzV9mis1kjfWshgNYmToG1z38efj"}
+        FILE_DATA: > {"scriptId":"AKfycbwWQUQDAq25CzNKuakb3teaKzV9mis1kjfWshgNYmToG1z38efj"}
     
     - name: Clasp Token
       uses: namaggarwal/clasp-token-action@v0.0.1
