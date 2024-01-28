@@ -5,7 +5,7 @@
   "main": "src/Main.js",
   "scripts": {
     "push-to-app": "cd src && clasp push -f",
-    "deploy-app": "cd src && clasp deploy --deploymentId $(echo $DEPLOYMENT_ID)"
+    "deploy-app": "cd src && echo $DEPLOYMENT_ID | clasp deploy --deploymentId "
   },
   "repository": {
     "type": "git",
