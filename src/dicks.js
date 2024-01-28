@@ -8,5 +8,5 @@ function sendDicks(msg) {
   const url = 'http://dicks-api.herokuapp.com/dicks/1';
   let data = UrlFetchApp.fetch(url);
   let JSONdata = JSON.parse(data);
-  telegramApi.sendMessage(msg, JSONdata['dicks'][0]);
+  telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: JSONdata['dicks'][0]}); 
 }

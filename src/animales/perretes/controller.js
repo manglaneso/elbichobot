@@ -26,9 +26,8 @@ function getPerrete(msg, caption=null) {
   let perreteType = perrete.getBlob().getContentType();
     
   if(perreteType.indexOf('gif') > -1) {
-    telegramApi.sendAnimation(msg, perrete, replyTo=true);
+    telegramApi.sendAnimation({chatId: String(msg['chat']['id']), animation: perrete.getBlob(), caption: caption, replyParameters: {'message_id': msg['message_id']}});
   } else  {
-    telegramApi.sendPhoto(msg, perrete, replyTo=true, caption);
-  }
-  
+    telegramApi.sendPhoto({chatId: String(msg['chat']['id']), photo: perrete.getBlob(), caption: caption, replyParameters: {'message_id': msg['message_id']}});
+  }  
 }

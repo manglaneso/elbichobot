@@ -7,8 +7,8 @@
  */
 function handleClick(msg) {
   if(getRndInteger(0, 6) === 3) {
-    telegramApi.sendMessage(msg, '😵💥🔫 BAAANG', replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: '😵💥🔫 BAAANG', replyParameters: {'message_id': msg['message_id']}}); 
   } else {
-    telegramApi.sendMessage(msg, '😛☁️🔫', replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: '😛☁️🔫', replyParameters: {'message_id': msg['message_id']}}); 
   }
 }

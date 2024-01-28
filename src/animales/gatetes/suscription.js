@@ -20,23 +20,24 @@ function isGateteSubscribed(chatId='-23232799') {
  */
 function subscribeToGatetes(msg) {
   if(isGateteSubscribed(msg['chat']['id'])) {
-    telegramApi.sendMessage(msg, 'Este chat ya está suscrito a su ración de gatetes diaria.', replyTo=true);
-  } else {
-    try {
-      let subscriptionFile = DriveApp.getFileById(SpreadsheetApp.create(String(msg['chat']['id']), 1, 1).getId());
-      
-      let rootFolder = DriveApp.getRootFolder();
-      let gatetesFolder = DriveApp.getFolderById(scriptProperties.getProperty('GateteSuscriptionsFolderID'));
-      
-      gatetesFolder.addFile(subscriptionFile);
-      rootFolder.removeFile(subscriptionFile);
-      
-      getGatete(msg, caption='Gracias por suscribirse al servicio de gatetes. A partir de ahora recibirás uno cada día. Además, aquí tienes el primero ;)')
-    } catch(e) {
-      telegramApi.sendMessage(msg, 'Ha ocurrido un error al suscribirse al servicio de gatetes. :(', replyTo=true);
-      console.error('Gatetes suscription error');
-      console.error(e);
-    }
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Este chat ya está suscrito a su ración de gatetes diaria.', replyParameters: {'message_id': msg['message_id']}});
+    return;
+  }
+
+  try {
+    let subscriptionFile = DriveApp.getFileById(SpreadsheetApp.create(String(msg['chat']['id']), 1, 1).getId());
+    
+    let rootFolder = DriveApp.getRootFolder();
+    let gatetesFolder = DriveApp.getFolderById(scriptProperties.getProperty('GateteSuscriptionsFolderID'));
+    
+    gatetesFolder.addFile(subscriptionFile);
+    rootFolder.removeFile(subscriptionFile);
+    
+    getGatete(msg, caption='Gracias por suscribirse al servicio de gatetes. A partir de ahora recibirás uno cada día. Además, aquí tienes el primero ;)')
+  } catch(e) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Ha ocurrido un error al suscribirse al servicio de gatetes. :(', replyParameters: {'message_id': msg['message_id']}});
+    console.error('Gatetes suscription error');
+    console.error(e);
   }
 }
 
@@ -47,20 +48,22 @@ function subscribeToGatetes(msg) {
  *
  */
 function unsubscribeFromGatetes(msg) {
-  if(isGateteSubscribed(msg['chat']['id'])) {
-    try {
-      let gatetesFolder = DriveApp.getFolderById(scriptProperties.getProperty('GateteSuscriptionsFolderID'));
-      let gateteFile = gatetesFolder.getFilesByName(msg['chat']['id']);
-      gateteFile.next().setTrashed(true);
-      telegramApi.sendMessage(msg, 'Te echaré de menos :(', replyTo=true);
-    } catch(e){
-      telegramApi.sendMessage(msg, 'Ha ocurrido un error desuscribiendote del servicio de gatetes. Esto es una señal clarísima :)', replyTo=true);
-      console.error('Gatetes unsubscription error');
-      console.error(e);
-    }    
-  } else {
-    telegramApi.sendMessage(msg, 'No estás suscrito al servicio de gatetes.', replyTo=true);
+  if(!isGateteSubscribed(msg['chat']['id'])) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No estás suscrito al servicio de gatetes.', replyParameters: {'message_id': msg['message_id']}});
+    return;
   }
+
+  try {
+    let gatetesFolder = DriveApp.getFolderById(scriptProperties.getProperty('GateteSuscriptionsFolderID'));
+    let gateteFile = gatetesFolder.getFilesByName(msg['chat']['id']);
+    gateteFile.next().setTrashed(true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Te echaré de menos :(', replyParameters: {'message_id': msg['message_id']}});
+
+  } catch(e){
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Ha ocurrido un error desuscribiendote del servicio de gatetes. Esto es una señal clarísima :)', replyParameters: {'message_id': msg['message_id']}});
+    console.error('Gatetes unsubscription error');
+    console.error(e);
+  }    
 }
 
 /**

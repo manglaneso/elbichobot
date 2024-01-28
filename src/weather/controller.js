@@ -32,10 +32,10 @@ function getCurrentWeather(msg) {
     template.amanecer = formatHours(jsonApiResult['sys']['sunrise']);
     template.atardecer = formatHours(jsonApiResult['sys']['sunset']);
 
-    telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: template.evaluate().getContent(), parseMode: 'HTML', replyParameters: {'message_id': msg['message_id']}});
   } catch(e) {
     console.error('Error en getCurrentWeather');
     console.error(e);
-    telegramApi.sendMessage(msg, 'No se ha encontrado la ciudad.', replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se ha encontrado la ciudad.', replyParameters: {'message_id': msg['message_id']}});
   }
 }

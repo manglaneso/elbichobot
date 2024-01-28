@@ -74,9 +74,7 @@ function getNextFiesta(msg, filter=undefined) {
     template['data'] = toTemplate;  
 
   }
-
-  telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
- 
+  telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: template.evaluate().getContent(), parseMode: 'HTML', replyParameters: {'message_id': msg['message_id']}});
 }
 
 /**
@@ -102,7 +100,6 @@ function getNextFiestas(msg, filter=undefined) {
   
   if(!filter) {
     template['data'] = fiestas;
-    
   } else {
     if(filter.toLowerCase() === 'nacionales') {
       var results = fiestas.filter(fiesta => fiesta.getTitle().indexOf('(') < 0);
@@ -113,7 +110,5 @@ function getNextFiestas(msg, filter=undefined) {
     template['data'] = results;  
 
   }
-
-  telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=true);
- 
+  telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: template.evaluate().getContent(), parseMode: 'HTML', replyParameters: {'message_id': msg['message_id']}}); 
 }

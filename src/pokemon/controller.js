@@ -25,7 +25,6 @@ const match = (pokemon, id_or_name) => pokemon['id'] === id_or_name || pokemon['
  */
 function handlePokedex(msg) {
   let pokemon =  replaceString('/pokedex ', '', msg['text']);
-  
   getPokedex(msg, pokemon);
 }
 
@@ -38,17 +37,17 @@ function handlePokedex(msg) {
  *
  */
 const sort_object_by_value = (obj) => {
-    let sorted_obj = {};
-    Object
-        .keys(obj)
-        .sort((a, b) => {
-            if (obj[b] - obj[a] === 0) {
-                return a < b ? -1 : a > b ? 1 : 0;
-            }
-            return obj[b] - obj[a];
-        })
-        .map(key => sorted_obj[key] = obj[key]);
-    return sorted_obj;
+  let sorted_obj = {};
+  Object
+    .keys(obj)
+    .sort((a, b) => {
+      if (obj[b] - obj[a] === 0) {
+        return a < b ? -1 : a > b ? 1 : 0;
+      }
+      return obj[b] - obj[a];
+    })
+    .map(key => sorted_obj[key] = obj[key]);
+  return sorted_obj;
 };
 
 /**
@@ -60,20 +59,20 @@ const sort_object_by_value = (obj) => {
  *
  */
 const format_type_advantage = (obj) => { 
-    let str = "";
-    let immune_str = "";
-    let resistant_str = "";
-    const sorted_obj = sort_object_by_value(obj);
-    Object.keys(sorted_obj).map(item => {
-        if (sorted_obj[item] === 0){
-            immune_str += `${capitalise(item)} (${sorted_obj[item]}x), `;
-        } else if (sorted_obj[item] < 1) { 
-            resistant_str += `${capitalise(item)} (${sorted_obj[item]}x), `;
-        } else if (sorted_obj[item] !== 1) {
-            str += `${capitalise(item)} (${sorted_obj[item]}x), `;
-        }
-    });
-    return [str.substring(0, str.length-2), resistant_str.substring(0, resistant_str.length-2), immune_str.substring(0, immune_str.length-2)];
+  let str = "";
+  let immune_str = "";
+  let resistant_str = "";
+  const sorted_obj = sort_object_by_value(obj);
+  Object.keys(sorted_obj).map(item => {
+    if (sorted_obj[item] === 0){
+      immune_str += `${capitalise(item)} (${sorted_obj[item]}x), `;
+    } else if (sorted_obj[item] < 1) { 
+      resistant_str += `${capitalise(item)} (${sorted_obj[item]}x), `;
+    } else if (sorted_obj[item] !== 1) {
+      str += `${capitalise(item)} (${sorted_obj[item]}x), `;
+    }
+  });
+  return [str.substring(0, str.length-2), resistant_str.substring(0, resistant_str.length-2), immune_str.substring(0, immune_str.length-2)];
 };
 
 /**
@@ -86,25 +85,25 @@ const format_type_advantage = (obj) => {
  *
  */
 const format_against_types = (pokemon_types, types) => {
-    let types_object = {};
-    for (const type of pokemon_types) {
-        let defense_object = types[type]["defense"];
-        Object.keys(defense_object).map(type_item => {
-            if (type_item in types_object) {
-                types_object[type_item] *= defense_object[type_item];
-            } else {
-                types_object[type_item] = defense_object[type_item];
-            }
-        });
-    }
+  let types_object = {};
+  for (const type of pokemon_types) {
+    let defense_object = types[type]["defense"];
+    Object.keys(defense_object).map(type_item => {
+      if (type_item in types_object) {
+        types_object[type_item] *= defense_object[type_item];
+      } else {
+        types_object[type_item] = defense_object[type_item];
+      }
+    });
+  }
 
-    const result = format_type_advantage(types_object);
+  const result = format_type_advantage(types_object);
 
-    return {
-        'formated_weak_string': `${result[0]}`,
-        'formated_resistant_string': result[1] !== "" ? `${result[1]}` : "",
-        'formated_inmune_string': result[2] !== "" ? `${result[2]}` : ""
-    };
+  return {
+    'formated_weak_string': `${result[0]}`,
+    'formated_resistant_string': result[1] !== "" ? `${result[1]}` : "",
+    'formated_inmune_string': result[2] !== "" ? `${result[2]}` : ""
+  };
 };
 
 /**
@@ -119,7 +118,6 @@ function loadPokedexJson() {
   let jsonBlob = jsonFile.getBlob();
   
   return JSON.parse(jsonBlob.getDataAsString());
-  
 }
 
 /**
@@ -173,11 +171,9 @@ function getPokedex(msg, pokemon) {
     
     let caption = template.evaluate().getContent();
 
-    telegramApi.sendPhoto(msg, UrlFetchApp.fetch(pokemonResource['ThumbnailImage']), replyTo=true, caption=caption);
-    
+    telegramApi.sendPhoto({chatId: String(msg['chat']['id']), photo: UrlFetchApp.fetch(pokemonResource['ThumbnailImage']).getBlob(), caption: caption, parseMode: 'HTML', replyParameters: {'message_id': msg['message_id']}});    
   } else {
-    telegramApi.sendMessage(msg, 'No se ha encontrado el Pokemon :(', replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se ha encontrado el Pokemon :(', replyParameters: {'message_id': msg['message_id']}}); 
   }
-  
 }
 
