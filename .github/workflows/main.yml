@@ -27,9 +27,9 @@ jobs:
 
     - name: Create File
       uses: finnp/create-file-action@2.0.0
-        env:
-          FILE_NAME: src/.clasp.json
-          FILE_DATA: {"scriptId":"AKfycbwWQUQDAq25CzNKuakb3teaKzV9mis1kjfWshgNYmToG1z38efj"}
+      env:
+        FILE_NAME: src/.clasp.json
+        FILE_DATA: {"scriptId":"AKfycbwWQUQDAq25CzNKuakb3teaKzV9mis1kjfWshgNYmToG1z38efj"}
     
     - name: Clasp Token
       uses: namaggarwal/clasp-token-action@v0.0.1

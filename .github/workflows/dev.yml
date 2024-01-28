@@ -1,7 +1,7 @@
 name: deploy_dev
 
 # Controls when the action will run. Triggers the workflow on push or pull request
-# events but only for the master branch
+# events but only for the dev branch
 on:
   push:
     branches: [ dev ]
@@ -25,11 +25,11 @@ jobs:
       with:
         node-version: '10.x'
 
-    - name: Create File
+    - name: Create .clasp.json
       uses: finnp/create-file-action@2.0.0
-        env:
-          FILE_NAME: src/.clasp.json
-          FILE_DATA: {"scriptId":"1f0zZRWVLGjl42rovb2OxOxg_H8OtlLdSS75wSG2kpdOQf7KJqv0M4cDZ"}
+      env:
+        FILE_NAME: src/.clasp.json
+        FILE_DATA: {"scriptId":"1f0zZRWVLGjl42rovb2OxOxg_H8OtlLdSS75wSG2kpdOQf7KJqv0M4cDZ"}
 
     - name: Clasp Token
       uses: namaggarwal/clasp-token-action@v0.0.1
