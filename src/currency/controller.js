@@ -18,12 +18,12 @@ function convertCurrency(msg) {
     let JSONdata = JSON.parse(data.getContentText());
     
     let result = amount * JSONdata['results'][conversion]['val'];
-
-    telegramApi.sendMessage(msg, result + ' ' + params[3], replyTo=false);
+    
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: result + ' ' + params[3], replyParameters: {'message_id': msg['message_id']}});
   } catch(e) {
     console.error('Error en convertCurrency');
     console.error(e);
-    telegramApi.sendMessage(msg, 'No se ha podido realizar la conversion.', replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se ha podido realizar la conversion.', replyParameters: {'message_id': msg['message_id']}});
   }
 }
 
@@ -42,10 +42,10 @@ function getCurrecyCodes(msg) {
 
     let template = HtmlService.createTemplateFromFile('currency/views/currencyCodes');
     template.data = JSONdata['results'];
-    telegramApi.sendMessage(msg, template.evaluate().getContent(), replyTo=false);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: template.evaluate().getContent(), parseMode: 'HTML'});
   } catch(e) {
     console.error('Error en getCurrecyCodes');
     console.error(e);
-    telegramApi.sendMessage(msg, 'No se ha podido obtener la lista de divisas.', replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se ha podido obtener la lista de divisas.', replyParameters: {'message_id': msg['message_id']}});
   }
 }

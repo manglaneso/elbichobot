@@ -11,71 +11,78 @@ function handlePole(msg) {
   lock.waitLock(30000);
   
   let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
+
+  if (checkIfExcludedChat(msg, poleConfig)) {
+    return;
+  }
+   
+  let ss = getChatSpreadsheet(String(msg['chat']['id']));  
   
-  if(!checkIfExcludedChat(msg, poleConfig)) {
-    let ss = getChatSpreadsheet(String(msg['chat']['id']));  
-  
-    if(ss == null) {
-      // No ha habido poles en esta conversación
-      ss = initChatPoleSpreadsheet(msg['chat']['id']);
-    }
-    
-    let poleConfigSheet = ss.getSheetByName('CONFIG');
-    let poleConfigRange = poleConfigSheet.getRange(1, 1);
-    let poleConfigValues = JSON.parse(poleConfigRange.getValue());
-    
-    let commandPriority = poleConfig['names'].indexOf(msg.text);
-    
-    let today = new Date();
-    
-    let lastDate = new Date(poleConfigValues[msg['text']]['lastDate']);
-    
-    let username = getBestUsername(msg['from']);
-    
-    if(commandPriority === 0) {
-      // Es la pole, vamos a ver si la de hoy ya se ha hecho
-      
-      if(!isToday(poleConfigValues[msg['text']]['lastDate'])) {
-        // hay pole
-        
-        // TODO: Place this logic into a function
-        
-        let poleConfigConfiguration = poleConfig['configuration'][msg['text']];
-        
-        poleConfigValues[msg['text']]['lastDate'] = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-        poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
-        
-        poleConfigRange.setValue(JSON.stringify(poleConfigValues));
-        increaseUserRank(msg['from'], username, msg.text, ss);
-        telegramApi.sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
-      }  
-    } else {
-      
-      if(!isToday(poleConfigValues[msg.text]['lastDate'])) {
-        // No se ha hecho hoy, vamos a ver si se ha hecho la anterior
-        
-        let previousCommand = poleConfig['names'][commandPriority - 1];
-        
-        if(isToday(poleConfigValues[previousCommand]['lastDate'])) {
-          // Ya se ha hecho el comando anterior, así que podemos hacer el siguiente
-          if(!checkIfUserPoleo(msg['from']['id'], poleConfigValues)) {
-            // No hemos hecho nosotros ninguna pole anterior, así que la podemos hacer
-            let poleConfigConfiguration = poleConfig['configuration'][msg['text']];
-            
-            poleConfigValues[msg['text']]['lastDate'] = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-            poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
-            
-            poleConfigRange.setValue(JSON.stringify(poleConfigValues));
-            increaseUserRank(msg['from'], username, msg.text, ss);
-            telegramApi.sendMessage(msg, `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`);
-          }
-        }
-      }
-    }
+  if(ss == null) {
+    // No ha habido poles en esta conversación
+    ss = initChatPoleSpreadsheet(msg['chat']['id']);
   }
   
-
+  let poleConfigSheet = ss.getSheetByName('CONFIG');
+  let poleConfigRange = poleConfigSheet.getRange(1, 1);
+  let poleConfigValues = JSON.parse(poleConfigRange.getValue());
   
+  let commandPriority = poleConfig['names'].indexOf(msg.text);
+  
+  let today = new Date();
+  
+  let lastDate = new Date(poleConfigValues[msg['text']]['lastDate']);
+  
+  let username = getBestUsername(msg['from']);
+  
+  if(commandPriority === 0) {
+    // Es la pole, vamos a ver si la de hoy ya se ha hecho
+
+    if(isToday(poleConfigValues[msg['text']]['lastDate'])) {
+      // No hay pole
+      return;
+    }
+
+    // TODO: Place this logic into a function
+      
+    let poleConfigConfiguration = poleConfig['configuration'][msg['text']];
+      
+    poleConfigValues[msg['text']]['lastDate'] = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
+    
+    poleConfigRange.setValue(JSON.stringify(poleConfigValues));
+    increaseUserRank(msg['from'], username, msg.text, ss);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`});  
+  } else {
+
+    if(isToday(poleConfigValues[msg.text]['lastDate'])) {
+      return;
+    }
+
+    // No se ha hecho hoy, vamos a ver si se ha hecho la anterior
+      
+    let previousCommand = poleConfig['names'][commandPriority - 1];
+
+    if(!isToday(poleConfigValues[previousCommand]['lastDate'])) {
+      return;
+    }
+    // Ya se ha hecho el comando anterior, así que podemos hacer el siguiente
+
+    if(checkIfUserPoleo(msg['from']['id'], poleConfigValues)) {
+      return;
+    }
+
+    // No hemos hecho nosotros ninguna pole anterior, así que la podemos hacer
+    let poleConfigConfiguration = poleConfig['configuration'][msg['text']];
+        
+    poleConfigValues[msg['text']]['lastDate'] = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    poleConfigValues[msg['text']]['lastPoleador'] = msg['from']['id'];
+    
+    poleConfigRange.setValue(JSON.stringify(poleConfigValues));
+    increaseUserRank(msg['from'], username, msg.text, ss);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: `El ${poleConfigConfiguration['message']} @${username} ha hecho ${poleConfigConfiguration['gender']} ${msg['text']}`}); 
+  }
+
   // Release the lock so that other processes can continue.
   lock.releaseLock();
   
@@ -155,74 +162,37 @@ function computeGlobalRank(poleConfig, data) {
  * @param {object} msg Telegram API message resource object
  *
  */
-function polerank(msg = {'chat':{'id': '-23232799'}}) {
-  
-  if(!checkIfExcludedChat(msg, poleConfig)) {
-    let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
-    let ss = getChatSpreadsheet(String(msg['chat']['id']));
-    if(ss) {
-      let toTemplate = {};
-      
-      for(let sheet in poleConfig['names']) {
-        toTemplate[poleConfig['names'][sheet]] = {};
-        let values = ss.getSheetByName(poleConfig['names'][sheet]).getRange('A1:C').getValues();
-        values.sort(comparePolerank);    
-        toTemplate[poleConfig['names'][sheet]]['sortedValues'] = values;
-        
-      }
+function polerank(msg) {
 
-      toTemplate['globalRank'] = computeGlobalRank(poleConfig, toTemplate);
+  let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
 
-      if(String(msg['chat']['id']) == "-1001426910007") {
-        let today = new Date();
-
-        if (today.getDate() === 1 && today.getMonth() === 0 && today.getFullYear() === 2022) {
-           if (!scriptProperties.getProperty('picadaDone')) {
-            scriptProperties.setProperty('picadaDone', "true");
-            anuncioGanador(msg, toTemplate['globalRank']);
-            picada(msg, toTemplate['globalRank']);
-           }
-        }
-        
-      }
-      
-      let template = HtmlService.createTemplateFromFile('pole/views/poleTemplate');
-      template['data'] = toTemplate;
-      template['priority'] = poleConfig['names'];
-
-      telegramApi.sendMessage(msg, template.evaluate().getContent(), parseMode='HTML', replyTo=true);
-    } else {
-      telegramApi.sendMessage(msg, 'No se ha hecho nunca la Pole en este chat', replyTo=true);
-    }  
+  if(checkIfExcludedChat(msg, poleConfig)) {
+    return;
   }
-}
 
+  let ss = getChatSpreadsheet(String(msg['chat']['id']));
 
-function aasdasdas(msg = {'chat':{'id': '-1001426910007'}}) {
-  
-  if(!checkIfExcludedChat(msg, poleConfig)) {
-    let poleConfig = JSON.parse(scriptProperties.getProperty('PoleConfig'));
-    let ss = getChatSpreadsheet(String(msg['chat']['id']));
-    if(ss) {
-      let toTemplate = {};
-      
-      for(let sheet in poleConfig['names']) {
-        toTemplate[poleConfig['names'][sheet]] = {};
-        let values = ss.getSheetByName(poleConfig['names'][sheet]).getRange('A1:C').getValues();
-        values.sort(comparePolerank);    
-        toTemplate[poleConfig['names'][sheet]]['sortedValues'] = values;
-        
-      }
-
-      toTemplate['globalRank'] = computeGlobalRank(poleConfig, toTemplate);
-      
-      let template = HtmlService.createTemplateFromFile('pole/views/poleTemplate');
-      template['data'] = toTemplate;
-      template['priority'] = poleConfig['names'];
-
-    } else {
-    }  
+  if (ss === null) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No se ha hecho nunca la Pole en este chat', replyParameters: {'message_id': msg['message_id']}});
+    return;
   }
+
+  let toTemplate = {};
+    
+  for(let sheet in poleConfig['names']) {
+    toTemplate[poleConfig['names'][sheet]] = {};
+    let values = ss.getSheetByName(poleConfig['names'][sheet]).getRange('A1:C').getValues();
+    values.sort(comparePolerank);    
+    toTemplate[poleConfig['names'][sheet]]['sortedValues'] = values;
+  }
+
+  toTemplate['globalRank'] = computeGlobalRank(poleConfig, toTemplate);
+  
+  let template = HtmlService.createTemplateFromFile('pole/views/poleTemplate');
+  template['data'] = toTemplate;
+  template['priority'] = poleConfig['names'];
+
+  telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: template.evaluate().getContent(), parseMode: 'HTML', replyParameters: {'message_id': msg['message_id']}}); 
 }
 
 /**
@@ -232,15 +202,17 @@ function aasdasdas(msg = {'chat':{'id': '-1001426910007'}}) {
  *
  */
 function resetPolerank(msg) {
-  if(!checkIfExcludedChat(msg, poleConfig)) {
-    let ss = getChatSpreadsheet(String(msg['chat']['id']));
-    
-    if(ss) {
-      DriveApp.getFileById(ss.getId()).setTrashed(true);
+  if(checkIfExcludedChat(msg, poleConfig)) {
+    return;
+  }
 
-      telegramApi.sendMessage(msg, 'Hecho!', parseMode="HTML", replyTo=true);
-    } else {
-      telegramApi.sendMessage(msg, 'Ha habido un problema reseteando el ranking de este chat', parseMode="HTML", replyTo=true);
-    }
-  }  
+  let ss = getChatSpreadsheet(String(msg['chat']['id']));
+
+  if (ss === null) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Ha habido un problema reseteando el ranking de este chat', replyParameters: {'message_id': msg['message_id']}});
+    return;
+  }
+
+  DriveApp.getFileById(ss.getId()).setTrashed(true);
+  telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Hecho!', replyParameters: {'message_id': msg['message_id']}}); 
 }

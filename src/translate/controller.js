@@ -42,7 +42,7 @@ function handleTranslate(msg) {
   } catch(e) {
     console.error('Error in formatting translate call');
     console.error(e);
-    telegramApi.sendMessage(msg, 'Ya lo has roto.', replyTo=true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Ya lo has roto.', replyParameters: {'message_id': msg['message_id']}});
   }
   
 }
@@ -58,7 +58,7 @@ function translate(msg, text, translateFrom, translateTo) {
     console.error(e);
     messageTranslated = 'Ya lo has roto.';
   }
-  telegramApi.sendMessage(msg, messageTranslated, replyTo=true);
+  telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: messageTranslated, replyParameters: {'message_id': msg['message_id']}});
 }
 
 /**
@@ -70,5 +70,5 @@ function translate(msg, text, translateFrom, translateTo) {
  */
 function getLanguages(msg) {
   let message = HtmlService.createHtmlOutputFromFile('translate/views/languages_support').getContent();
-  telegramApi.sendMessage(msg, message);
+  telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: message, replyParameters: {'message_id': msg['message_id']}});
 }

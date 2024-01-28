@@ -1,3 +1,4 @@
 function getChatId(msg) {
-  telegramApi.sendMessage(msg, String(msg['chat']['id']));
+  let chatId = String(msg['chat']['id']);
+  telegramApi.sendMessage({chatId: chatId, text: chatId}); 
 }

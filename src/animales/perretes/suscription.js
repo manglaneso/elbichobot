@@ -20,23 +20,24 @@ function isPerreteSubscribed(chatId) {
  */
 function subscribeToPerretes(msg) {
   if(isPerreteSubscribed(msg['chat']['id'])) {
-    telegramApi.sendMessage(msg, 'Este chat ya está suscrito a su ración de perretes diaria.', replyTo=true);
-  } else {
-    try {
-      let subscriptionFile = DriveApp.getFileById(SpreadsheetApp.create(String(msg['chat']['id']), 1, 1).getId());
-      // TODO: Cambiar la forma de gestionar la ubicación de los archivos
-      let rootFolder = DriveApp.getRootFolder();
-      let perretesFolder = DriveApp.getFolderById(scriptProperties.getProperty('PerreteSuscriptionsFolderID'));
-      
-      perretesFolder.addFile(subscriptionFile);
-      rootFolder.removeFile(subscriptionFile);
-      
-      getPerrete(msg, caption='Gracias por suscribirse al servicio de perretes. A partir de ahora recibirás uno cada día. Además, aquí tienes el primero ;)')
-    } catch(e) {
-      telegramApi.sendMessage(msg, 'Ha ocurrido un error al suscribirse al servicio de perretes. :(', replyTo=true);
-      console.error('Perretes suscription error');
-      console.error(e);
-    }
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Este chat ya está suscrito a su ración de perretes diaria.', replyParameters: {'message_id': msg['message_id']}});
+    return;
+  }
+
+  try {
+    let subscriptionFile = DriveApp.getFileById(SpreadsheetApp.create(String(msg['chat']['id']), 1, 1).getId());
+    // TODO: Cambiar la forma de gestionar la ubicación de los archivos
+    let rootFolder = DriveApp.getRootFolder();
+    let perretesFolder = DriveApp.getFolderById(scriptProperties.getProperty('PerreteSuscriptionsFolderID'));
+    
+    perretesFolder.addFile(subscriptionFile);
+    rootFolder.removeFile(subscriptionFile);
+    
+    getPerrete(msg, caption='Gracias por suscribirse al servicio de perretes. A partir de ahora recibirás uno cada día. Además, aquí tienes el primero ;)')
+  } catch(e) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Ha ocurrido un error al suscribirse al servicio de perretes. :(', replyParameters: {'message_id': msg['message_id']}});
+    console.error('Perretes suscription error');
+    console.error(e);
   }
 }
 
@@ -47,19 +48,20 @@ function subscribeToPerretes(msg) {
  *
  */
 function unsubscribeFromPerretes(msg) {
-  if(isPerreteSubscribed(msg['chat']['id'])) {
-    try {
-      let perretesFolder = DriveApp.getFolderById(scriptProperties.getProperty('PerreteSuscriptionsFolderID'));
-      let perreteFile = perretesFolder.getFilesByName(msg['chat']['id']);
-      perreteFile.next().setTrashed(true);
-      telegramApi.sendMessage(msg, 'Te echaré de menos :(', replyTo=true);
-    } catch(e) {
-      telegramApi.sendMessage(msg, 'Ha ocurrido un error desuscribiendote del servicio de perretes. Esto es una señal clarísima :)', replyTo=true);
-      console.error('Perretes unsubscription error');
-      console.error(e);
-    }    
-  } else {
-    telegramApi.sendMessage(msg, 'No estás suscrito al servicio de Perretes.', replyTo=true);
+  if(!isPerreteSubscribed(msg['chat']['id'])) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'No estás suscrito al servicio de gatetes.', replyParameters: {'message_id': msg['message_id']}});
+    return;
+  }
+
+  try {
+    let perretesFolder = DriveApp.getFolderById(scriptProperties.getProperty('PerreteSuscriptionsFolderID'));
+    let perreteFile = perretesFolder.getFilesByName(msg['chat']['id']);
+    perreteFile.next().setTrashed(true);
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Te echaré de menos :(', replyParameters: {'message_id': msg['message_id']}});
+  } catch(e) {
+    telegramApi.sendMessage({chatId: String(msg['chat']['id']), text: 'Ha ocurrido un error desuscribiendote del servicio de gatetes. Esto es una señal perretes :)', replyParameters: {'message_id': msg['message_id']}});
+    console.error('Perretes unsubscription error');
+    console.error(e);
   }
 }
 
